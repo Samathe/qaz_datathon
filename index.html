@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Индекс качества жизни – Казахстан (прототип)</title>
+
+<!-- d3 first -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+:root{
+  --panel-bg:#ffffff;
+  --bg:#ffffff;
+  --border:#d1d5db;
+  --gridline: rgba(0,160,200,0.15);
+  --text-main:#374151;
+  --text-dim:#9ca3af;
+  --radius-lg:8px;
+  --shadow-card:0 10px 30px rgba(0,0,0,0.07);
+  --shadow-float:0 20px 60px rgba(0,0,0,0.18);
+  --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --viz-height:700px;
+  --viz-width:1400px;
+}
+
+body{ margin:0; background:var(--bg); font-family:var(--font); color:var(--text-main); line-height:1.4; display:flex; padding:16px; box-sizing:border-box; }
+
+/* LEFT PANEL */
+.sidebar{ width:260px; min-width:260px; max-width:260px; background:var(--panel-bg); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-card); height:var(--viz-height); box-sizing:border-box; padding:16px; display:flex; flex-direction:column; overflow-y:auto; }
+.sidebar-title{ font-size:15px; font-weight:600; color:var(--text-main); margin-bottom:4px; }
+.sidebar-sub{ font-size:12px; color:var(--text-dim); margin-bottom:12px; }
+
+.select-wrapper{ border:1px solid var(--border); border-radius:var(--radius-lg); padding:6px 8px; font-size:12px; background:#f9fafb; display:flex; align-items:center; }
+select{ width:100%; font-size:12px; color:var(--text-main); background:transparent; border:none; outline:none; }
+
+/* RIGHT VISUAL AREA */
+.main-area{ flex:1; display:flex; align-items:flex-start; justify-content:center; height:var(--viz-height); padding-left:16px; overflow:hidden; position:relative; }
+svg{ width:var(--viz-width); height:var(--viz-height); font-family:var(--font); }
+
+.detail-card{ position:absolute; min-width:320px; background:#fff; border:1px solid var(--border); border-radius:4px; box-shadow:var(--shadow-float); padding:16px; font-size:12px; color:var(--text-main); z-index:9999; }
+
+/* simple helper */
+.hit-area{ fill:transparent; pointer-events:all; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- Loading Indicator -->
+<div id="loadingIndicator" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(255,255,255,0.95); padding:16px 20px; border-radius:8px; box-shadow:0 6px 24px rgba(0,0,0,0.12); z-index:2000; font-weight:600; color:var(--text-main);">Загрузка данных...</div>
+
+<aside class="sidebar">
+  <div class="sidebar-title">Создайте свой Индекс Качества Жизни</div>
+  <div class="sidebar-sub">Сдвигайте ползунки (0–10), чтобы сказать, что для вас важнее. Лепестки = показатели, высота цветка = общий индекс.</div>
+
+  <div id="sliders"></div>
+
+  <div style="margin-top:12px" class="group-block">
+    <div style="font-weight:600; margin-bottom:6px">Сравнивать по:</div>
+    <div class="select-wrapper"><select id="groupSelect"><option value="territory">Территория</option><option value="age">Возрастные группы</option><option value="settlement">Тип населенного пункта</option><option value="gender">Пол</option><option value="year">Год</option></select></div>
+  </div>
+
+  <div class="group-block" style="margin-top:12px;">
+    <div style="font-weight:600; margin-bottom:6px">Фильтры</div>
+    <div style="display:flex;gap:8px;flex-direction:column; font-size:13px;">
+      <label>Год: <select id="yearMin"></select> — <select id="yearMax"></select></label>
+      <label>Пол: <select id="genderFilter"><option value="all">Все</option><option value="Male">Мужчина</option><option value="Female">Женщина</option></select></label>
+      <label>Тип: <select id="settlementFilter"><option value="all">Все</option><option value="Город">Город</option><option value="Село">Село</option></select></label>
+      <label>Возраст: <select id="ageFilter"><option value="all">Все</option></select></label>
+    </div>
+  </div>
+</aside>
+
+<section class="main-area">
+  <svg id="viz"></svg>
+</section>
+
+<script src="detailCard.js"></script>
+
+<script>
+console.log('[main] init');
+
+const DIMENSIONS = [
+  { key: 'satisfaction' },{ key: 'health' },{ key: 'financial' },{ key: 'housing' },{ key: 'leisure' },{ key: 'life' },{ key: 'living' },{ key: 'social' },{ key: 'loneliness' },{ key: 'work_life' },{ key: 'mobility' }
+];
+
+const TERRITORIES = ['Абайская область','Акмолинская область','Актюбинская область','Алматинская область','Атырауская область'];
+
+let satisfactionData = [];
+let socialData = [];
+let timeData = [];
+let mergedRecords = [];
+
+const parseNum = v => { if (v==null) return 0; const s = String(v).trim().replace(/\s/g,'').replace(',','.'); const n = parseFloat(s); return isNaN(n)?0:n; };
+function showLoading(show){ const el = document.getElementById('loadingIndicator'); if (el) el.style.display = show? 'block':'none'; }
+
+async function loadAllData(){
+  showLoading(true);
+  console.log('Starting data load...');
+  const files = [ 'Satisfaction index dataset.csv', 'social_indices_by_age_region_gender.csv', 'region_age_place_distribution.csv' ];
+  try{
+    const [sRaw, socRaw, tRaw] = await Promise.all(files.map(f=>d3.csv(f)));
+    console.log('Loaded', { s: sRaw.length, soc: socRaw.length, t: tRaw.length });
+    if (!sRaw.length || !socRaw.length || !tRaw.length) throw new Error('Empty dataset');
+    satisfactionData = sRaw; socialData = socRaw; timeData = tRaw;
+    processAndMerge(); populateFilterControls(); updateAll();
+    showLoading(false);
+  }catch(e){ console.error('Load error', e); alert('Ошибка загрузки данных — использую тестовые.'); setupFallbackData(); populateFilterControls(); updateAll(); showLoading(false); }
+}
+
+function normalizeTo10(v, type){ if (v==null) return 0; if (type==='ratio') return Math.max(0,Math.min(10,v*10)); if (type==='percent') return Math.max(0,Math.min(10,v/10)); return Math.max(0,Math.min(10,v)); }
+
+function processAndMerge(){
+  // normalize satisfaction
+  const sat = satisfactionData.map(r=>{
+    const get = names=>{ for(const n of names){ if (r[n]!=null) return r[n]; } return undefined; };
+    const row = {
+      year: get(['Год','Year'])||'',
+      region: (get(['Территория/Регион','Территория','Region','TE_region'])||'').trim(),
+      settlement: (get(['Тип населенного пункта','Тип','SettlementType'])||'').trim(),
+      ageGroup: (get(['AgeGroup_2','AgeGroup'])||'').trim(),
+      gender: (get(['Пол','Gender','POL'])||'').trim(),
+      satisfaction: normalizeTo10(parseNum(get(['Satisfaction Index','SatisfactionIndex','Satisfaction']))),
+      health: normalizeTo10(parseNum(get(['Health']))),
+      financial: normalizeTo10(parseNum(get(['Financial Situation','Financial']))),
+      housing: normalizeTo10(parseNum(get(['Housing Quality','Housing']))),
+      leisure: normalizeTo10(parseNum(get(['Leisure Time','Leisure']))),
+      life: normalizeTo10(parseNum(get(['Life']))),
+      living: normalizeTo10(parseNum(get(['Living Condition','Living']))),
+      raw: r
+    };
+    return row;
+  });
+
+  const soc = socialData.map(r=>({ region:(r.TE_region||r['TE_region']||'').trim(), ageGroup:(r.AgeGroup||'').trim(), gender:(r.POL||'').trim(), social:normalizeTo10(parseNum(r.social_index),'ratio'), loneliness:normalizeTo10(parseNum(r.loneliness_index),'ratio'), raw:r }));
+
+  const tnorm = timeData.map(r=>({ region:(r.TE_region||'').trim(), ageGroup:(r.AgeGroup||'').trim(), gender:(r.POL||'').trim(), place:(r.place_group||r.place||'').trim(), percent:parseNum(r.percent||r.Percent||r['%']||r['percent']) }));
+
+  const timeByKey = d3.group(tnorm, d=>[d.region,d.ageGroup,d.gender].join('||'));
+  const timeAgg = new Map();
+  timeByKey.forEach((vals,key)=>{
+    let work=0, mobility=0, total=0;
+    vals.forEach(v=>{ const p=v.percent||0; const name=(v.place||'').toLowerCase(); if (name.includes('работ')||name.includes('work')||name.includes('office')) work+=p; if (name.includes('транспорт')||name.includes('transport')||name.includes('outside')||name.includes('улиц')||name.includes('прогул')) mobility+=p; total+=p; });
+    const workPct = total? (work/total*100):0; const mobPct = total? (mobility/total*100):0;
+    timeAgg.set(key,{ work_life:normalizeTo10(workPct,'percent'), mobility:normalizeTo10(mobPct,'percent') });
+  });
+
+  const keyFor = r=>[r.region||'', r.ageGroup||'', r.gender||'', r.settlement||'', r.year||''].join('||');
+  const satByKey = d3.group(sat, d=>keyFor(d));
+  const socByKey = d3.group(soc, d=>[d.region,d.ageGroup,d.gender].join('||'));
+
+  mergedRecords = [];
+  sat.forEach(s => {
+    const socKey = [s.region,s.ageGroup,s.gender].join('||');
+    const timeRow = timeAgg.get(socKey) || { work_life:0, mobility:0 };
+    const socRow = (socByKey.get(socKey)&&socByKey.get(socKey)[0])||null;
+    mergedRecords.push({ year:s.year, region:s.region||'—', settlement:s.settlement||'—', ageGroup:s.ageGroup||'—', gender:s.gender||'—', dims:{ satisfaction:s.satisfaction||0, health:s.health||0, financial:s.financial||0, housing:s.housing||0, leisure:s.leisure||0, life:s.life||0, living:s.living||0, social:(socRow&&socRow.social)||0, loneliness:(socRow&&socRow.loneliness)||0, work_life:timeRow.work_life||0, mobility:timeRow.mobility||0 }, sources:{ satisfaction: s.raw?1:0, social: socRow?1:0, time: (timeRow&&(timeRow.work_life||timeRow.mobility))?1:0 } });
+  });
+
+  soc.forEach(s =>{
+    const key = [s.region,s.ageGroup,s.gender].join('||');
+    const exists = mergedRecords.find(m=>[m.region,m.ageGroup,m.gender].join('||')===[s.region,s.ageGroup,s.gender].join('||'));
+    if (!exists){ const timeRow = timeAgg.get(key)||{work_life:0,mobility:0}; mergedRecords.push({ year:'', region:s.region||'—', settlement:'—', ageGroup:s.ageGroup||'—', gender:s.gender||'—', dims:{ satisfaction:0, health:0, financial:0, housing:0, leisure:0, life:0, living:0, social:s.social||0, loneliness:s.loneliness||0, work_life:timeRow.work_life||0, mobility:timeRow.mobility||0 }, sources:{satisfaction:0,social:1,time:(timeRow.work_life||timeRow.mobility)?1:0} }); }
+  });
+
+  timeAgg.forEach((val,key)=>{ const [region,age,gender]=key.split('||'); const exists = mergedRecords.find(m=>m.region===region && m.ageGroup===age && m.gender===gender); if (!exists){ mergedRecords.push({ year:'', region:region||'—', settlement:'—', ageGroup:age||'—', gender:gender||'—', dims:{satisfaction:0,health:0,financial:0,housing:0,leisure:0,life:0,living:0,social:0,loneliness:0,work_life:val.work_life||0,mobility:val.mobility||0}, sources:{satisfaction:0,social:0,time:1} }); } });
+
+  console.log('Merged records:', mergedRecords.length);
+}
+
+function populateFilterControls(){
+  const years = Array.from(new Set(mergedRecords.map(r=>r.year).filter(y=>y))).sort();
+  const yearMin = d3.select('#yearMin'); const yearMax = d3.select('#yearMax'); yearMin.selectAll('option').remove(); yearMax.selectAll('option').remove(); if (years.length===0){ yearMin.append('option').text('All').attr('value',''); yearMax.append('option').text('All').attr('value',''); } years.forEach(y=>{ yearMin.append('option').text(y).attr('value',y); yearMax.append('option').text(y).attr('value',y);});
+  const ages = Array.from(new Set(mergedRecords.map(r=>r.ageGroup))).filter(a=>a).sort(); const ageSel = d3.select('#ageFilter'); ageSel.selectAll('option').remove(); ageSel.append('option').attr('value','all').text('Все'); ages.forEach(a=>ageSel.append('option').text(a).attr('value',a));
+  d3.select('#groupSelect').on('change', ()=>updateAll()); d3.select('#yearMin').on('change', ()=>updateAll()); d3.select('#yearMax').on('change', ()=>updateAll()); d3.select('#genderFilter').on('change', ()=>updateAll()); d3.select('#settlementFilter').on('change', ()=>updateAll()); d3.select('#ageFilter').on('change', ()=>updateAll());
+}
+
+function setupFallbackData(){ const fallback = TERRITORIES.map((name,i)=>({id:100+i, name, dims: DIMENSIONS.reduce((acc,d)=>{ acc[d.key]=Math.round((Math.random()*6+3)*10)/10; return acc; },{}) })); mergedRecords = fallback.map(f=>({ year:'', region:f.name, settlement:'—', ageGroup:'—', gender:'—', dims:f.dims, sources:{satisfaction:0,social:0,time:0} })); }
+
+function getFilteredGroupedData(){
+  const yrMin = d3.select('#yearMin').node()?d3.select('#yearMin').node().value:'';
+  const yrMax = d3.select('#yearMax').node()?d3.select('#yearMax').node().value:'';
+  const gender = d3.select('#genderFilter').node()?d3.select('#genderFilter').node().value:'all';
+  const settlement = d3.select('#settlementFilter').node()?d3.select('#settlementFilter').node().value:'all';
+  const age = d3.select('#ageFilter').node()?d3.select('#ageFilter').node().value:'all';
+  let filtered = mergedRecords.filter(r=>{ if (gender!=='all' && r.gender && !String(r.gender).toLowerCase().includes(String(gender).toLowerCase())) return false; if (settlement!=='all' && r.settlement && !String(r.settlement).toLowerCase().includes(String(settlement).toLowerCase())) return false; if (age!=='all' && r.ageGroup !== age) return false; if (yrMin && r.year && r.year < yrMin) return false; if (yrMax && r.year && r.year > yrMax) return false; return true; });
+  const groupBy = d3.select('#groupSelect').node()?d3.select('#groupSelect').node().value:'territory';
+  let grouped;
+  if (groupBy==='territory') grouped = d3.group(filtered, d=>d.region);
+  else if (groupBy==='age') grouped = d3.group(filtered, d=>d.ageGroup);
+  else if (groupBy==='settlement') grouped = d3.group(filtered, d=>d.settlement);
+  else if (groupBy==='gender') grouped = d3.group(filtered, d=>d.gender);
+  else if (groupBy==='year') grouped = d3.group(filtered, d=>d.year);
+  else grouped = d3.group(filtered, d=>d.region);
+  const out=[]; let idc=1000; grouped.forEach((vals,key)=>{ if (!key) return; const avg = {}; DIMENSIONS.forEach(dim=>{ const scores = vals.map(v=>v.dims[dim.key]||0).filter(x=>x!=null); avg[dim.key] = scores.length? +d3.mean(scores).toFixed(2):0; }); out.push({ id:idc++, name:key, dims:avg, count:vals.length, raw:vals }); }); return out;
+}
+
+function updateAll(){
+  const data = getFilteredGroupedData();
+  console.log('updateAll items', data.length);
+  const svg = d3.select('#viz'); svg.selectAll('*').remove();
+  const g = svg.append('g').attr('transform','translate(20,20)');
+  g.selectAll('text').data(data).enter().append('text').attr('y',(d,i)=>i*18).attr('x',0).style('font-size','12px').text(d=>`${d.name} — ${d.count} items`);
+}
+
+console.log('[main] ready');
+loadAllData();
+</script>
+</body>
+</html>

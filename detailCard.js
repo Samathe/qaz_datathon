@@ -1,66 +1,71 @@
 // detailCard.js
-// Floating detail card logic (OECD-style breakdown panel)
+// Renders and positions the floating detail card for each "flower".
 
-(function(){
+(function () {
   console.log("[detailCard] init");
 
-  // create the card element once
+  // We'll create the card dynamically on page load, so index.html
+  // does not have to hardcode the markup.
   const card = document.createElement("div");
   card.className = "detail-card";
   card.style.display = "none";
 
-  // header (title)
   const headerEl = document.createElement("div");
   headerEl.className = "detail-header";
   headerEl.id = "detailTitle";
   headerEl.textContent = "—";
   card.appendChild(headerEl);
 
-  // little 0 2 4 6 8 10 row above bars
+  // scale ticks row (0,2,4,6,8,10)
   const scaleRow = document.createElement("div");
   scaleRow.className = "scale-row";
   scaleRow.innerHTML = `
-    <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span>
+    <span>0</span><span>2</span><span>4</span>
+    <span>6</span><span>8</span><span>10</span>
   `;
   card.appendChild(scaleRow);
 
-  // placeholder for bars
+  // container for bars
   const barsWrap = document.createElement("div");
   barsWrap.id = "detailBars";
   card.appendChild(barsWrap);
 
-  // make sure card lives inside .main-area
-  function attachCardParent(){
+  // satisfaction / overall note
+  const extraWrap = document.createElement("div");
+  extraWrap.id = "detailExtra";
+  extraWrap.className = "detail-extra";
+  card.appendChild(extraWrap);
+
+  // attach card into .main-area after DOM is ready
+  function attachCardParent() {
     const mainArea = document.querySelector(".main-area");
-    if (!mainArea) {
-      console.warn("[detailCard] .main-area not found yet");
-      return;
-    }
-    if (!card.parentNode) {
+    if (mainArea && !card.parentNode) {
       mainArea.appendChild(card);
-      console.log("[detailCard] card appended to .main-area");
+      console.log("[detailCard] card appended");
     }
   }
-
   attachCardParent();
   window.addEventListener("load", attachCardParent);
 
-  // public: render + show
+  /**
+   * Show detail card.
+   * @param {Object} item  - { name, dims:{dimKey:value...}, satisfaction?:number }
+   * @param {number} clientX
+   * @param {number} clientY
+   * @param {Array} DIMENSIONS - [{key,label},...]
+   * @param {Function} colorScale - d3 scale to pick colors for each dimension
+   */
   function showDetailCard(item, clientX, clientY, DIMENSIONS, colorScale) {
     attachCardParent();
 
-    if (!item || !item.dims) {
-      console.error("[detailCard] showDetailCard called with bad item:", item);
-      return;
-    }
+    // Title
+    headerEl.textContent = item.name || "—";
 
-    headerEl.textContent = item.name;
+    // Bars for every dimension
     barsWrap.innerHTML = "";
-
-    // build bar rows based on ACTUAL (raw) scores, not weighted
     DIMENSIONS.forEach((dim, i) => {
-      const rawScore = item.dims[dim.key]; // number 0..10
-      const color    = colorScale(i);
+      const rawScore = item.dims?.[dim.key];
+      if (rawScore == null || isNaN(rawScore)) return; // skip missing
 
       const row = document.createElement("div");
       row.className = "bar-row";
@@ -78,73 +83,60 @@
 
       const fill = document.createElement("div");
       fill.className = "bar-fill";
-      fill.style.background = color;
-      fill.style.width = (rawScore/10 * 120) + "px";
-      track.appendChild(fill);
+      fill.style.background = colorScale(i);
+      fill.style.width = (parseFloat(rawScore) / 10 * 120) + "px";
 
       const val = document.createElement("div");
       val.className = "bar-value";
-      val.textContent = rawScore.toFixed(1);
+      val.textContent = Number(rawScore).toFixed(1);
 
+      track.appendChild(fill);
       rightWrap.appendChild(track);
       rightWrap.appendChild(val);
-
       row.appendChild(rightWrap);
+
       barsWrap.appendChild(row);
     });
 
-    // position card relative to .main-area so it never leaves that container
-    const cardWidth  = 360;
-    const cardHeight = 320;
-    const margin = 12; // inner margin from container edges
-
-    const mainArea = document.querySelector('.main-area');
-    if (mainArea) {
-      const rect = mainArea.getBoundingClientRect();
-
-      // clientX/Y are viewport coords; convert to coords relative to mainArea
-      const relX = clientX - rect.left;
-      const relY = clientY - rect.top;
-
-      // try to place to the right of cursor inside mainArea
-      let left = relX + 20;
-      let top  = relY + 20;
-
-      // if placing to the right would overflow the right edge of mainArea, place to the left of cursor
-      if (relX + 20 + cardWidth > rect.width - margin) {
-        left = relX - 20 - cardWidth;
-      }
-
-      // clamp so card is fully inside mainArea
-      left = Math.max(margin, Math.min(left, rect.width - cardWidth - margin));
-      top  = Math.max(margin, Math.min(top, rect.height - cardHeight - margin));
-
-      card.style.left = left + "px";
-      card.style.top  = top  + "px";
-      card.style.display = "block";
-    } else {
-      // fallback: viewport-based positioning
-      const pageW = window.innerWidth;
-      const pageH = window.innerHeight;
-      let left = clientX + 20;
-      let top  = clientY + 20;
-      if (clientX + 20 + cardWidth > pageW - 20) {
-        left = clientX - 20 - cardWidth;
-      }
-      left = Math.max(20, Math.min(left, pageW - cardWidth - 20));
-      top  = Math.max(20, Math.min(top, pageH - cardHeight - 20));
-      card.style.left = left + "px";
-      card.style.top  = top  + "px";
-      card.style.display = "block";
+    // Extra info: satisfaction, total index
+    let extraLines = [];
+    if (typeof item.satisfaction === "number") {
+      extraLines.push(
+        `Удовлетворённость жизнью: ${item.satisfaction.toFixed(2)} / 10`
+      );
     }
+    if (typeof item.overallScore === "number") {
+      extraLines.push(
+        `Итоговый индекс (с учётом весов): ${item.overallScore.toFixed(2)} / 10`
+      );
+    }
+    extraWrap.textContent = extraLines.join(" • ");
+
+    // Position card near cursor, but keep on screen
+    const cardWidth = 360;
+    const cardHeight = 340;
+    let left = clientX + 20;
+    let top = clientY + 20;
+    const pageW = window.innerWidth;
+    const pageH = window.innerHeight;
+
+    if (left + cardWidth > pageW - 20) {
+      left = pageW - cardWidth - 20;
+    }
+    if (top + cardHeight > pageH - 20) {
+      top = pageH - cardHeight - 20;
+    }
+
+    card.style.left = left + "px";
+    card.style.top = top + "px";
+    card.style.display = "block";
   }
 
-  // public: hide
   function hideDetailCard() {
     card.style.display = "none";
   }
 
-  // expose to global scope so index.html script can call
+  // Expose globally so index.html can call them
   window.showDetailCard = showDetailCard;
   window.hideDetailCard = hideDetailCard;
 

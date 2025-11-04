@@ -277,6 +277,44 @@
     margin-bottom: 4px;
   }
 
+  .label-container {
+    display: inline-block;
+  }
+
+  .weight-tooltip {
+    display: none;
+    position: absolute;
+    width: 300px;
+    background: #ffffff;
+    color: #334155;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1.5;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+    z-index: 1000000;
+    border: 1px solid #e5e7eb;
+    pointer-events: none;
+  }
+
+  .weight-tooltip::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-left: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .label-container:hover .weight-tooltip {
+    display: block;
+  }
+
   .slider-head .val {
     font-size: 12px;
     color: var(--text-dim);
@@ -547,6 +585,235 @@
     border-top: 1px solid var(--border);
     padding-top: 8px;
   }
+
+  /* Trend panel styles */
+  .trend-panel {
+    width: 100%;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 20px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-float);
+    position: relative;
+  }
+
+  .trend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trend-header h3 {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 18px;
+  }
+
+  #closeTrendPanel {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-dim);
+    padding: 5px;
+  }
+
+  #closeTrendPanel:hover { color: var(--text-main); }
+
+  .trend-button {
+    width: 100%;
+    padding: 10px;
+    background: var(--color-blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+  }
+
+  .trend-button:hover { background: #5a9bc8; }
+
+  .trend-line { 
+    fill: none; 
+    stroke-width: 3.5px; 
+    stroke-linejoin: round; 
+    stroke-linecap: round;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  }
+  .trend-dot { 
+    cursor: pointer; 
+    transition: all 0.3s ease;
+    r: 5;
+    stroke: #fff;
+    stroke-width: 2;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+  }
+  .trend-dot:hover { 
+    r: 7; 
+    stroke-width: 3; 
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  .trend-legend { 
+    font-size: 14px; 
+    cursor: pointer; 
+    transition: opacity 0.2s ease;
+    font-weight: 500;
+  }
+  .trend-legend:hover { opacity: 0.8; }
+  .trend-legend.hidden { opacity: 0.3; }
+  .trend-axis { 
+    font-size: 14px; 
+    color: var(--text-main);
+    font-weight: 500;
+  }
+  .trend-grid { 
+    stroke: var(--gridline); 
+    stroke-width: 1.5; 
+    stroke-dasharray: 4,4; 
+  }
+  .axis-label { 
+    font-size: 16px; 
+    fill: var(--text-main); 
+    font-weight: 600;
+  }
+
+  .trend-tooltip {
+    position: absolute; padding: 8px 12px; background: rgba(255,255,255,0.95);
+    border: 1px solid var(--border); border-radius: 4px; pointer-events: none; font-size:12px;
+    box-shadow: var(--shadow-card); z-index:1000;
+  }
+
+  /* Ranking panel styles */
+  .ranking-card {
+    position: fixed;
+    min-width: 400px;
+    max-width: 500px;
+    max-height: 600px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-float);
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text-main);
+    z-index: 10000;
+    display: none;
+    overflow-y: auto;
+  }
+
+  .ranking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ranking-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  #closeRankingCard {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-dim);
+    padding: 2px;
+  }
+
+  .ranking-year-selector {
+    margin-bottom: 12px;
+  }
+
+  .ranking-year-selector select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+  }
+
+  .ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ranking-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 60px 50px;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    align-items: center;
+    transition: background-color 0.2s ease;
+  }
+
+  .ranking-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .ranking-header-row {
+    font-weight: 600;
+    background-color: #f1f5f9;
+    border-radius: 4px;
+  }
+
+  .rank-position {
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-main);
+  }
+
+  .rank-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rank-score {
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-weight: 600;
+  }
+
+  .rank-change {
+    text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 11px;
+  }
+
+  .rank-change.positive {
+    color: #10b981;
+    font-weight: 600;
+  }
+
+  .rank-change.negative {
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  /* Adaptive styles for mobile devices */
+  @media (max-width: 768px) {
+    .ranking-card {
+      min-width: 300px;
+      max-width: 90vw;
+      left: 50% !important;
+      transform: translateX(-50%);
+      top: 20px !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -579,7 +846,6 @@
     <svg id="viz"></svg>
     <div class="detail-card" id="detailCard"></div>
   </section>
-
   <aside class="controls-panel">
     <div class="controls-title">Настройки отображения</div>
     
@@ -627,8 +893,23 @@
         </select>
       </div>
     </div>
+    <div class="control-block">
+      <div class="block-label">Анализ тенденций:</div>
+      <button id="showTrendPanel" class="trend-button">Показать динамику по годам</button>
+    </div>
   </aside>
 </div>
+
+<!-- Trend panel (hidden by default) placed below main content -->
+<section class="trend-panel" id="trendPanel" style="display: none;">
+  <div class="trend-header">
+    <h3>Динамика индекса качества жизни по годам</h3>
+    <div class="trend-controls">
+      <button id="closeTrendPanel">✕</button>
+    </div>
+  </div>
+  <svg id="trendViz" width="1400" height="400"></svg>
+</section>
 
 <script>
 const DIMENSIONS = [
@@ -691,6 +972,201 @@ function colorForDim(i) {
   ];
   return oecdColors[i % oecdColors.length];
 }
+
+// ---------- Trend panel JS (shows multi-line trends per selected grouping) ----------
+// Add this function to link flowers with trend-panel
+function highlightTrendLine(itemName) {
+  if (!trendPanelVisible) return;
+  
+  const trendSvg = d3.select('#trendViz');
+  // Reset all highlights
+  trendSvg.selectAll('.trend-line').style('opacity', 0.3);
+  trendSvg.selectAll('.trend-dot').style('opacity', 0.3);
+  trendSvg.selectAll('.trend-legend').classed('hidden', true);
+  
+  // Highlight corresponding line
+  const targetLine = trendSvg.selectAll(`[data-item="${itemName}"]`);
+  const targetDots = trendSvg.selectAll('.trend-dot').filter(d => d.itemName === itemName);
+  const targetLegend = trendSvg.selectAll('.trend-legend').filter(d => d.name === itemName);
+  
+  if (!targetLine.empty()) {
+    targetLine.style('opacity', 1).style('stroke-width', 4);
+    targetDots.style('opacity', 1).attr('r', 5);
+    targetLegend.classed('hidden', false);
+    
+    // Scroll to trend panel
+    document.getElementById('trendPanel').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+let trendPanelVisible = false;
+
+function initializeTrendPanel() {
+  const showButton = document.getElementById('showTrendPanel');
+  const closeButton = document.getElementById('closeTrendPanel');
+  const trendPanel = document.getElementById('trendPanel');
+  if (!trendPanel) return;
+
+  if (showButton) {
+    showButton.addEventListener('click', function() {
+      trendPanelVisible = true;
+      trendPanel.style.display = 'block';
+      updateTrendViz();
+      trendPanel.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  if (closeButton) {
+    closeButton.addEventListener('click', function() {
+      trendPanelVisible = false;
+      trendPanel.style.display = 'none';
+    });
+  }
+
+  // Also update when grouping changes while visible
+  const groupSelect = document.getElementById('groupSelect');
+  if (groupSelect) {
+    groupSelect.addEventListener('change', function() {
+      if (trendPanelVisible) setTimeout(updateTrendViz, 50);
+    });
+  }
+}
+
+function calculateTrendData() {
+  const years = ['2020','2021','2022','2023','2024'];
+  const trendData = [];
+  const grouping = currentGrouping || 'Region';
+
+  const allItems = new Set();
+  years.forEach(year => {
+    const yearData = getYearData(grouping, year) || [];
+    yearData.forEach(item => allItems.add(item.name));
+  });
+
+  allItems.forEach(itemName => {
+    const itemTrend = { name: itemName, values: [], color: getColorForItem(itemName) };
+    years.forEach(year => {
+      const yearData = getYearData(grouping, year) || [];
+      const itemData = yearData.find(it => it.name === itemName);
+      if (itemData) {
+        itemTrend.values.push({ year: year, value: overallScore(itemData), rawData: itemData });
+      } else {
+        itemTrend.values.push({ year: year, value: null, rawData: null });
+      }
+    });
+    const valid = itemTrend.values.filter(v => v.value !== null);
+    if (valid.length >= 2) trendData.push(itemTrend);
+  });
+
+  return trendData;
+}
+
+function getColorForItem(itemName) {
+  // Высококонтрастная палитра цветов
+  const colors = [
+    '#2E3192', // Темно-синий
+    '#D62828', // Красный
+    '#107C10', // Зеленый
+    '#7B1FA2', // Фиолетовый
+    '#E65100', // Оранжевый
+    '#006064', // Сине-зеленый
+    '#C2185B', // Малиновый
+    '#1565C0', // Яркий синий
+    '#33691E', // Темно-зеленый
+    '#6A1B9A', // Насыщенный фиолетовый
+    '#283593', // Индиго
+    '#004D40', // Темный сине-зеленый
+    '#B71C1C', // Темно-красный
+    '#1B5E20', // Насыщенный зеленый
+    '#4A148C'  // Темно-фиолетовый
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < itemName.length; i++) {
+    hash = itemName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function updateTrendViz() {
+  if (!trendPanelVisible) return;
+  let trendData = calculateTrendData();
+  const svg = d3.select('#trendViz');
+  if (svg.empty()) return;
+  svg.selectAll('*').remove();
+
+  // Apply top N filter if selected
+  const topSelect = document.getElementById('topSelect');
+  if (topSelect && topSelect.value !== 'all') {
+    const topN = parseInt(topSelect.value);
+    // Get the latest year data to determine top N
+    const latestYear = '2024'; // or get dynamically from your data
+    const latestData = {};
+    trendData.forEach(item => {
+      const latestValue = item.values.find(v => v.year === latestYear)?.value;
+      if (latestValue !== undefined) {
+        latestData[item.name] = latestValue;
+      }
+    });
+    
+    // Sort by latest year values and get top N names
+    const topNames = Object.entries(latestData)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, topN)
+      .map(([name]) => name);
+    
+    // Filter trend data to only include top N
+    trendData = trendData.filter(item => topNames.includes(item.name));
+  }
+
+  if (trendData.length === 0) {
+    svg.append('text').attr('x',700).attr('y',200).attr('text-anchor','middle').attr('fill','#9ca3af').text('Недостаточно данных для отображения трендов');
+    return;
+  }
+
+  const margin = { top: 40, right: 200, bottom: 50, left: 60 };
+  const width = +svg.attr('width') - margin.left - margin.right;
+  const height = +svg.attr('height') - margin.top - margin.bottom;
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+  const years = ['2020','2021','2022','2023','2024'];
+
+  const xScale = d3.scalePoint().domain(years).range([0, width]).padding(0.5);
+  let globalMin = Infinity, globalMax = -Infinity;
+  trendData.forEach(item => item.values.forEach(d => { if (d.value !== null) { globalMin = Math.min(globalMin, d.value); globalMax = Math.max(globalMax, d.value); } }));
+  if (!isFinite(globalMin)) { globalMin = 0; globalMax = 10; }
+  const yPadding = (globalMax - globalMin) * 0.1 || 1;
+  const yScale = d3.scaleLinear().domain([Math.max(0, globalMin - yPadding), Math.min(10, globalMax + yPadding)]).range([height,0]).nice();
+
+  const yTicks = yScale.ticks(6);
+  g.selectAll('.trend-grid').data(yTicks).enter().append('line').attr('class','trend-grid').attr('x1',0).attr('x2',width).attr('y1',d=>yScale(d)).attr('y2',d=>yScale(d));
+
+  const xAxis = d3.axisBottom(xScale);
+  const yAxis = d3.axisLeft(yScale);
+  g.append('g').attr('class','trend-axis').attr('transform',`translate(0,${height})`).call(xAxis);
+  g.append('g').attr('class','trend-axis').call(yAxis);
+
+  g.append('text').attr('class','axis-label').attr('transform',`translate(${width/2},${height+40})`).style('text-anchor','middle').text('Год');
+  g.append('text').attr('class','axis-label').attr('transform','rotate(-90)').attr('y',-40).attr('x',-height/2).style('text-anchor','middle').text('Индекс качества жизни');
+
+  const line = d3.line().x(d=>xScale(d.year)).y(d=>yScale(d.value)).defined(d=>d.value!==null).curve(d3.curveMonotoneX);
+
+  const lines = g.selectAll('.trend-line-group').data(trendData).enter().append('g');
+  lines.append('path').attr('class','trend-line').attr('d',d=>line(d.values)).attr('stroke',d=>d.color).attr('fill','none').attr('data-item',d=>d.name).style('opacity',1);
+
+  const tooltip = d3.select('body').append('div').attr('class','trend-tooltip').style('opacity',0);
+
+  lines.selectAll('.trend-dot').data(d=>d.values.map(v=>({...v,itemName:d.name,color:d.color})).filter(v=>v.value!==null)).enter().append('circle').attr('class','trend-dot')
+    .attr('cx',d=>xScale(d.year)).attr('cy',d=>yScale(d.value)).attr('r',4).attr('fill',d=>d.color).attr('stroke','#fff').attr('stroke-width',2)
+    .on('mouseover',function(event,d){ tooltip.transition().duration(200).style('opacity',0.95); tooltip.html(`<div style="font-weight:600;margin-bottom:4px;">${d.itemName} - ${d.year}</div><div>Индекс: <strong>${d.value.toFixed(2)}</strong></div>${d.rawData?`<div style="margin-top:4px;font-size:11px;color:#666;">Нажмите для деталей</div>`:''}`).style('left',(event.pageX+10)+'px').style('top',(event.pageY-28)+'px'); d3.select(this).attr('r',6).attr('stroke-width',3); })
+    .on('mouseout',function(){ tooltip.transition().duration(500).style('opacity',0); d3.select(this).attr('r',4).attr('stroke-width',2); })
+    .on('click',function(event,d){ if (d.rawData && typeof window.showDetailCard === 'function') window.showDetailCard(d.rawData, event.clientX, event.clientY); });
+
+  const legend = svg.append('g').attr('transform',`translate(${width + margin.left + 20}, ${margin.top})`);
+  const legendItems = legend.selectAll('.trend-legend').data(trendData).enter().append('g').attr('class','trend-legend').attr('transform',(d,i)=>`translate(0, ${i*20})`).style('cursor','pointer').on('click',function(event,d){ const path = svg.selectAll(`[data-item="${d.name}"]`); const current = path.style('opacity') || '1'; const next = current === '0.3' ? '1' : '0.3'; path.style('opacity', next); d3.select(this).classed('hidden', next==='0.3'); });
+  legendItems.append('rect').attr('width',15).attr('height',3).attr('y',8.5).attr('fill',d=>d.color);
+  legendItems.append('text').attr('x',20).attr('y',10).attr('dy','0.35em').style('font-size','11px').style('fill','#000').text(d=>d.name.length>20?d.name.substring(0,20)+'...':d.name);
+}
+
 
 function randomScore() {
   return +(Math.random() * 6 + 2).toFixed(2); // 2-8 range
@@ -1975,6 +2451,10 @@ function updateAll() {
           showDetailCard(item, mouseX, mouseY);
         }, 50);
       })
+      .on("click", (event) => {
+        // When clicking on a flower, highlight corresponding trend line
+        highlightTrendLine(item.name);
+      })
       .on("mouseleave", () => {
         clearTimeout(window._detailCardTimeout);
         svg.selectAll(".flower-group").classed("highlight", false).style("opacity", 1);
@@ -1986,6 +2466,14 @@ function updateAll() {
 }
 
 function initControls() {
+  // Create global tooltip element
+  if (!document.getElementById('weight-tooltip')) {
+    const tooltipDiv = document.createElement('div');
+    tooltipDiv.id = 'weight-tooltip';
+    tooltipDiv.className = 'weight-tooltip';
+    document.body.appendChild(tooltipDiv);
+  }
+
   const slidersContainer = d3.select("#sliders");
   const sliderGroups = slidersContainer.selectAll(".slider-block")
     .data(DIMENSIONS)
@@ -1993,8 +2481,61 @@ function initControls() {
     .append("div")
     .attr("class", "slider-block");
 
+  const tooltipTexts = {
+    'food_insecurity': 'Отражает способность домохозяйства обеспечивать базовую продовольственную безопасность',
+    'missed_payments': 'Позволяет оценить финансовую устойчивость и способность справляться с текущими расходами',
+    'internet_access': 'Доступ в интернет для получения информации, образования и участия в цифровой экономике',
+    'unmet_healthcare': 'Показывает доступность медицинской помощи и наличие неудовлетворенных потребностей',
+    'clothing_afford': 'Указывает на возможность удовлетворять базовые потребности в одежде',
+    'internet_use': 'Отражает цифровую включенность и регулярность использования интернета',
+    'social_afford': 'Показывает возможность участия в общественной жизни для социальной интеграции',
+    'holiday_afford': 'Отражает наличие ресурсов для отдыха и качество жизни',
+    'welfare_trend': 'Показывает усредненную динамику изменений уровня благосостояния за 5 лет',
+    'health_index': 'Измеряет среднюю самооценку состояния здоровья населения',
+    'financial_situation': 'Отражает уровень удовлетворенности финансовым положением',
+    'housing_quality': 'Оценивает качество и комфорт жилищных условий',
+    'leisure_time': 'Показывает удовлетворенность наличием и качеством свободного времени',
+    'life_index': 'Отражает субъективное восприятие общего качества жизни',
+    'living_condition': 'Показывает удовлетворенность общими условиями жизни и окружающей средой',
+    'prof_wellbeing': 'Отражает удовлетворенность профессиональной деятельностью и навыками'
+  };
+
+  // Добавляем обработчики для позиционирования тултипов
+  function positionTooltip(event) {
+    const tooltip = event.currentTarget.querySelector('.weight-tooltip');
+    if (tooltip) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      tooltip.style.top = rect.top + window.scrollY + 'px';
+      tooltip.style.left = rect.right + 20 + 'px'; // 20px отступ от элемента
+    }
+  }
+
   const headerRow = sliderGroups.append("div").attr("class", "slider-head");
-  headerRow.append("div").text(d => d.label);
+  const labelDiv = headerRow.append("div")
+    .attr("class", "label-container")
+    .style("cursor", "help");
+    
+  labelDiv.append("span")
+    .attr("class", "label-text")
+    .text(d => d.label)
+    .on("mouseenter", function(event, d) {
+      const tooltip = document.getElementById('weight-tooltip');
+      if (!tooltip) return;
+      
+      tooltip.textContent = tooltipTexts[d.key] || 'Описание отсутствует';
+      tooltip.style.display = 'block';
+      
+      const rect = event.target.getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      
+      tooltip.style.left = (rect.right + window.pageXOffset + 20) + 'px';
+      tooltip.style.top = (rect.top + window.pageYOffset - (tooltipRect.height / 2) + (rect.height / 2)) + 'px';
+    })
+    .on("mouseleave", function() {
+      const tooltip = document.getElementById('weight-tooltip');
+      if (tooltip) tooltip.style.display = 'none';
+    });
+  
   headerRow.append("div").attr("class", "val").text(d => weights[d.key]);
 
   sliderGroups.append("div")
@@ -2011,6 +2552,11 @@ function initControls() {
       weights[d.key] = +this.value;
       d3.select(this.parentNode).select(".slider-head .val").text(this.value);
       updateAll();
+      
+      // Update trend visualization if it's visible
+      if (trendPanelVisible) {
+        setTimeout(updateTrendViz, 50);
+      }
     });
 
   document.getElementById("groupSelect").addEventListener("change", (e) => {
@@ -2063,7 +2609,15 @@ function initControls() {
 
   document.getElementById("sortSelect").addEventListener("change", updateAll);
   const topEl = document.getElementById('topSelect');
-  if (topEl) topEl.addEventListener('change', updateAll);
+  if (topEl) {
+    topEl.addEventListener('change', () => {
+      updateAll();
+      // Update trend visualization if it's visible
+      if (trendPanelVisible) {
+        setTimeout(updateTrendViz, 50);
+      }
+    });
+  }
 }
 
 function boot() {
@@ -2081,9 +2635,23 @@ function boot() {
   }
   updateViewTitle();
   updateAll();
+  // Initialize trend panel UI bindings
+  if (typeof initializeTrendPanel === 'function') initializeTrendPanel();
+  
+  // Initialize ranking panel if available
+  if (typeof initRankingPanel === 'function') initRankingPanel();
+  
+  // Update trend panel when grouping changes
+  document.getElementById("groupSelect").addEventListener("change", function() {
+    if (trendPanelVisible) {
+      setTimeout(updateTrendViz, 50);
+    }
+  });
 }
 
 boot();
 </script>
+<script src="detailCard.js"></script>
+<script src="rankingPanel.js"></script>
 </body>
 </html>

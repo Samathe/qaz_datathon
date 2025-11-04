@@ -362,16 +362,32 @@
     transition: opacity 0.15s;
   }
 
+  .flower-center {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+  }
+
   .petal {
-    fill-opacity: 0.9;
-    stroke: rgba(0,0,0,0.15);
+    fill-opacity: 0.8;
+    stroke: rgba(255,255,255,0.4);
     stroke-width: 0.4px;
     pointer-events: none;
+    transition: transform 0.3s ease;
+  }
+
+  .flower-group:hover .petal {
+    transform: scale(1.05);
   }
 
   .flower-group.highlight .petal {
     stroke-width: 0.8px;
-    stroke: rgba(0,0,0,0.4);
+    transform: scale(1.05);
+  }
+
+  .score-text {
+    fill: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    font-weight: 700;
   }
 
   .hit-area {
@@ -482,7 +498,7 @@
   <div class="header-content">
     <h1 class="header-title">
       <span class="header-title-main">Многомерная методологическая модель оценки благополучия в Казахстане</span>
-      <span class="header-title-sub">региональный, территориальный, гендерный и возрастной композиционный индекс качества жизни</span>
+      <span class="header-title-sub">региональный, территориальный, гендерный и возрастной композитный индекс качества жизни</span>
     </h1>
 
   </div>
@@ -573,7 +589,23 @@ const PAD_BOTTOM = 80;
 const PAD_LEFT = 20;
 const PAD_RIGHT = 20;
 
-const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+// Create color scales for the flower center and petals
+const colorScaleYellow = d3.scaleLinear()
+  .domain([0, 5, 10])
+  .range(['#F7B32B', '#FFD95A', '#FFF2B2'])
+  .interpolate(d3.interpolateRgb);
+
+const petalGradient = (id) => `url(#petalGradient${id})`;
+
+// Return a distinct yellow/golden color for a given dimension index
+function colorForDim(i) {
+  // Use a rainbow-like sequential interpolator but avoid the pure yellow
+  // region so the center (yellow) remains visually distinct.
+  const steps = Math.max(1, DIMENSIONS.length - 1);
+  // map i -> [0.06 .. 0.94] portion of the rainbow to skip the bright yellow center
+  const t = 0.06 + (i / steps) * 0.88;
+  return d3.interpolateRainbow(t);
+}
 
 function randomScore() {
   return +(Math.random() * 6 + 2).toFixed(2); // 2-8 range
@@ -918,28 +950,33 @@ function overallScore(item) {
   return den === 0 ? 0 : +(num / den).toFixed(2);
 }
 
+function getCenterRadius(score) {
+  return 10 + score * 1.5; // 10px base + score-based increase
+}
+
 function radiusFor(dimKey, item) {
   const raw = item.dims[dimKey];
   const w = weights[dimKey];
   const eff = (raw * w) / 10;
-  const PETAL_BASE_RADIUS = 74; // increased from 24 to 74 (+50px)
+  const PETAL_BASE_RADIUS = 60; // slightly reduced to account for center circle
   return (eff / 10) * (PETAL_BASE_RADIUS * 2.0);
 }
 
-function petalPolygon(dimIndex, r) {
+function petalPolygon(dimIndex, r, centerR) {
   const total = DIMENSIONS.length;
-  const ANGLE_SPREAD = 0.30;
+  const ANGLE_SPREAD = 0.25; // slightly reduced spread
   const angleCenter = (2 * Math.PI * dimIndex) / total - Math.PI / 2;
   const a1 = angleCenter - ANGLE_SPREAD;
   const a2 = angleCenter + ANGLE_SPREAD;
-  const rTip = r;
-  const rSide = r * 0.45;
+  const rTip = r + centerR; // add center radius to total length
+  const rSide = centerR + (r * 0.45); // start from center circle
+  
   return [
-    [0, 0],
+    [Math.cos(angleCenter) * centerR, Math.sin(angleCenter) * centerR], // start at circle edge
     [Math.cos(a1) * rSide, Math.sin(a1) * rSide],
     [Math.cos(angleCenter) * rTip, Math.sin(angleCenter) * rTip],
     [Math.cos(a2) * rSide, Math.sin(a2) * rSide],
-    [0, 0]
+    [Math.cos(angleCenter) * centerR, Math.sin(angleCenter) * centerR] // end at circle edge
   ];
 }
 
@@ -976,7 +1013,7 @@ function showDetailCard(item, clientX, clientY) {
   DIMENSIONS.forEach((dim, i) => {
     const val = item.dims[dim.key] || 0;
     const pct = (val / 10) * 100;
-    const col = colorScale(i);
+    const col = colorForDim(i);
     html += `<div class="bar-row">
       <div class="bar-label">${dim.label}</div>
       <div class="bar-wrapper">
@@ -1063,6 +1100,20 @@ function updateAll() {
     .attr("x", d => -(HEIGHT - PAD_BOTTOM - 10))
     .attr("y", d => xScale(d.name));
 
+  // Setup gradient definition if not exists
+  const defs = svg.selectAll("defs").data([0]).join("defs");
+  const gradient = defs.selectAll("#petalGradient").data([0])
+    .join("linearGradient")
+    .attr("id", "petalGradient")
+    .attr("gradientUnits", "userSpaceOnUse");
+
+  gradient.selectAll("stop").data([
+    {offset: "0%", color: "#FDE68A"},
+    {offset: "100%", color: "#FACC15"}
+  ]).join("stop")
+    .attr("offset", d => d.offset)
+    .attr("stop-color", d => d.color);
+
   stemsMerge.each(function(item) {
     const gFlower = d3.select(this).select(".flower-group");
     const fx = xScale(item.name);
@@ -1070,29 +1121,47 @@ function updateAll() {
 
     gFlower.transition().duration(200).attr("transform", `translate(${fx},${fy})`);
 
+    // Add or update center circle
+    const centerR = getCenterRadius(item.overallScore);
+    const centerCircle = gFlower.selectAll(".flower-center").data([item]);
+    
+    centerCircle.enter()
+      .append("circle")
+      .attr("class", "flower-center")
+      .merge(centerCircle)
+      .attr("r", centerR)
+      .attr("fill", d => colorScaleYellow(d.overallScore))
+      .attr("stroke", "rgba(0,0,0,0.1)")
+      .attr("stroke-width", 1);
+
+    // Update petals: include index so each dimension gets its own color
     const petals = gFlower.selectAll(".petal").data(
       DIMENSIONS.map((dim, i) => ({
-        color: colorScale(i),
-        poly: petalPolygon(i, radiusFor(dim.key, item))
+        idx: i,
+        key: dim.key,
+        poly: petalPolygon(i, radiusFor(dim.key, item), centerR)
       })),
-      (d, i) => i
+      (d) => d.idx
     );
 
     petals.enter()
       .append("path")
       .attr("class", "petal")
-      .attr("fill", d => d.color)
       .merge(petals)
       .transition()
       .duration(200)
-      .attr("d", d => d3.line()(d.poly));
+      .attr("d", d => d3.line()(d.poly))
+      .attr("fill", d => colorForDim(d.idx));
 
     petals.exit().remove();
 
+    // Update score text
     const scoreText = gFlower.selectAll(".score-text").data([item]);
     scoreText.enter()
       .append("text")
       .attr("class", "score-text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
       .merge(scoreText)
       .text(d => d.overallScore.toFixed(2));
 

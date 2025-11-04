@@ -505,7 +505,6 @@
         <option value="AgeGroup">Возрастная группа</option>
         <option value="Gender">Гендер</option>
         <option value="SettlementType">Тип поселения</option>
-        <option value="Year">Год</option>
       </select>
     </div>
     <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">
@@ -522,6 +521,12 @@
         <option value="score_asc">Индекс (низкий → высокий)</option>
       </select>
     </div>
+      <div class="group-block">
+        <div class="block-label">Выберите год:</div>
+        <div class="select-wrapper">
+          <select id="yearSelect"></select>
+        </div>
+      </div>
     </div>
   </aside>
 
@@ -558,6 +563,7 @@ DIMENSIONS.forEach(dim => { weights[dim.key] = 5; });
 let DATASETS = {};
 let currentGrouping = "Region";
 let CURRENT_DATA = [];
+let selectedYear = null;
 
 const svg = d3.select("#viz");
 const WIDTH = 1400;
@@ -605,18 +611,259 @@ function generateTestData() {
     };
   });
 
-  DATASETS.Gender = ['Мужчины', 'Женщины'].map((name, i) => {
-    const dims = {};
-    DIMENSIONS.forEach(dim => { dims[dim.key] = randomScore(); });
-    return {
-      id: 'Gender_' + i,
-      name,
-      shortName: name,
-      dims,
-      satisfaction: +(Math.random() * 3 + 5).toFixed(2),
-      overallScore: 0
-    };
-  });
+  // Real gender data by year
+  DATASETS.Gender = {
+    2020: [
+      {
+        id: 'Gender_0',
+        name: 'Мужчины',
+        shortName: 'Мужчины',
+        dims: {
+          food_insecurity: 10.00,
+          missed_payments: 10.00,
+          internet_access: 8.50,
+          unmet_healthcare: 0.00,
+          basic_clothing_afford: 10.00,
+          internet_use: 10.00,
+          social_afford: 10.00,
+          holiday_afford: 10.00,
+          welfare_trend: 5.50,
+          health_index: 7.20,
+          financial_situation: 7.10,
+          housing_quality: 7.48,
+          leisure_time: 7.48,
+          life_index: 7.84,
+          living_condition: 7.65,
+          prof_wellbeing: 7.89
+        },
+        overallScore: 0
+      },
+      {
+        id: 'Gender_1',
+        name: 'Женщины',
+        shortName: 'Женщины',
+        dims: {
+          food_insecurity: 10.00,
+          missed_payments: 8.80,
+          internet_access: 7.10,
+          unmet_healthcare: 0.00,
+          basic_clothing_afford: 9.90,
+          internet_use: 10.00,
+          social_afford: 10.00,
+          holiday_afford: 10.00,
+          welfare_trend: 4.50,
+          health_index: 7.25,
+          financial_situation: 7.03,
+          housing_quality: 7.45,
+          leisure_time: 7.49,
+          life_index: 7.83,
+          living_condition: 7.63,
+          prof_wellbeing: 7.87
+        },
+        overallScore: 0
+      }
+    ],
+    2021: [
+      {
+        id: 'Gender_0',
+        name: 'Мужчины',
+        shortName: 'Мужчины',
+        dims: {
+          food_insecurity: 10.0,
+          missed_payments: 10.0,
+          internet_access: 10.0,
+          unmet_healthcare: 0.0,
+          basic_clothing_afford: 10.0,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 5.4,
+          health_index: 7.28,
+          financial_situation: 7.14,
+          housing_quality: 7.49,
+          leisure_time: 7.44,
+          life_index: 7.79,
+          living_condition: 7.62,
+          prof_wellbeing: 7.81
+        },
+        overallScore: 0
+      },
+      {
+        id: 'Gender_1',
+        name: 'Женщины',
+        shortName: 'Женщины',
+        dims: {
+          food_insecurity: 8.8,
+          missed_payments: 10.0,
+          internet_access: 10.0,
+          unmet_healthcare: 0.0,
+          basic_clothing_afford: 9.9,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 4.5,
+          health_index: 7.26,
+          financial_situation: 7.13,
+          housing_quality: 7.42,
+          leisure_time: 7.39,
+          life_index: 7.85,
+          living_condition: 7.60,
+          prof_wellbeing: 7.77
+        },
+        overallScore: 0
+      }
+    ],
+    2022: [
+      {
+        id: 'Gender_0',
+        name: 'Мужчины',
+        shortName: 'Мужчины',
+        dims: {
+          food_insecurity: 10.0,
+          missed_payments: 10.0,
+          internet_access: 8.5,
+          unmet_healthcare: 0.0,
+          basic_clothing_afford: 10.0,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 5.5,
+          health_index: 7.31,
+          financial_situation: 7.08,
+          housing_quality: 7.60,
+          leisure_time: 7.43,
+          life_index: 7.53,
+          living_condition: 7.60,
+          prof_wellbeing: 7.80
+        },
+        overallScore: 0
+      },
+      {
+        id: 'Gender_1',
+        name: 'Женщины',
+        shortName: 'Женщины',
+        dims: {
+          food_insecurity: 10.0,
+          missed_payments: 8.8,
+          internet_access: 7.1,
+          unmet_healthcare: 0.0,
+          basic_clothing_afford: 9.9,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 4.5,
+          health_index: 7.29,
+          financial_situation: 7.03,
+          housing_quality: 7.59,
+          leisure_time: 7.44,
+          life_index: 7.47,
+          living_condition: 7.57,
+          prof_wellbeing: 7.84
+        },
+        overallScore: 0
+      }
+    ],
+    2023: [
+      {
+        id: 'Gender_0',
+        name: 'Мужчины',
+        shortName: 'Мужчины',
+        dims: {
+          food_insecurity: 0.0,
+          missed_payments: 10.0,
+          internet_access: 10.0,
+          unmet_healthcare: 10.0,
+          basic_clothing_afford: 10.0,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 0.0,
+          health_index: 7.30,
+          financial_situation: 7.15,
+          housing_quality: 7.55,
+          leisure_time: 7.42,
+          life_index: 7.54,
+          living_condition: 7.63,
+          prof_wellbeing: 7.80
+        },
+        overallScore: 0
+      },
+      {
+        id: 'Gender_1',
+        name: 'Женщины',
+        shortName: 'Женщины',
+        dims: {
+          food_insecurity: 0.0,
+          missed_payments: 10.0,
+          internet_access: 10.0,
+          unmet_healthcare: 8.7,
+          basic_clothing_afford: 9.9,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 0.0,
+          health_index: 7.33,
+          financial_situation: 7.13,
+          housing_quality: 7.61,
+          leisure_time: 7.46,
+          life_index: 7.55,
+          living_condition: 7.64,
+          prof_wellbeing: 7.79
+        },
+        overallScore: 0
+      }
+    ],
+    2024: [
+      {
+        id: 'Gender_0',
+        name: 'Мужчины',
+        shortName: 'Мужчины',
+        dims: {
+          food_insecurity: 10.0,
+          missed_payments: 8.6,
+          internet_access: 8.5,
+          unmet_healthcare: 10.0,
+          basic_clothing_afford: 9.9,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 0.0,
+          health_index: 7.41,
+          financial_situation: 7.23,
+          housing_quality: 7.65,
+          leisure_time: 7.41,
+          life_index: 7.65,
+          living_condition: 7.66,
+          prof_wellbeing: 7.86
+        },
+        overallScore: 0
+      },
+      {
+        id: 'Gender_1',
+        name: 'Женщины',
+        shortName: 'Женщины',
+        dims: {
+          food_insecurity: 10.0,
+          missed_payments: 10.0,
+          internet_access: 7.1,
+          unmet_healthcare: 8.8,
+          basic_clothing_afford: 10.0,
+          internet_use: 10.0,
+          social_afford: 10.0,
+          holiday_afford: 10.0,
+          welfare_trend: 0.0,
+          health_index: 7.44,
+          financial_situation: 7.21,
+          housing_quality: 7.60,
+          leisure_time: 7.43,
+          life_index: 7.63,
+          living_condition: 7.64,
+          prof_wellbeing: 7.91
+        },
+        overallScore: 0
+      }
+    ]
+  };
 
   DATASETS.SettlementType = ['Город', 'Село'].map((name, i) => {
     const dims = {};
@@ -631,7 +878,7 @@ function generateTestData() {
     };
   });
 
-  DATASETS.Year = ['2019', '2020', '2021', '2022', '2023', '2024'].map((name, i) => {
+  DATASETS.Year = ['2020', '2021', '2022', '2023', '2024'].map((name, i) => {
     const dims = {};
     DIMENSIONS.forEach(dim => { dims[dim.key] = randomScore(); });
     return {
@@ -651,9 +898,11 @@ function updateViewTitle() {
     AgeGroup: 'Сравнение возрастных групп',
     Gender: 'Сравнение по полу',
     SettlementType: 'Сравнение типов поселения',
-    Year: 'Динамика по годам'
+    // Year moved to independent selector
   };
-  document.getElementById('viewTitle').textContent = map[currentGrouping] || 'Сравнение';
+  let title = map[currentGrouping] || 'Сравнение';
+  if (selectedYear) title += ' — ' + selectedYear;
+  document.getElementById('viewTitle').textContent = title;
 }
 
 function overallScore(item) {
@@ -912,10 +1161,41 @@ function initControls() {
 
   document.getElementById("groupSelect").addEventListener("change", (e) => {
     currentGrouping = e.target.value;
-    CURRENT_DATA = DATASETS[currentGrouping] || [];
+    if (currentGrouping === 'Gender' && selectedYear) {
+      CURRENT_DATA = DATASETS.Gender[selectedYear] || [];
+    } else {
+      CURRENT_DATA = DATASETS[currentGrouping] || [];
+    }
     updateViewTitle();
     updateAll();
   });
+
+  // Populate year selector independently
+  const yearSelectEl = document.getElementById('yearSelect');
+  if (yearSelectEl) {
+    // Clear any existing options
+    yearSelectEl.innerHTML = '';
+    if (Array.isArray(DATASETS.Year)) {
+      DATASETS.Year.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y.name;
+        opt.textContent = y.name;
+        yearSelectEl.appendChild(opt);
+      });
+      // default to last year available
+      selectedYear = DATASETS.Year[DATASETS.Year.length - 1].name;
+      yearSelectEl.value = selectedYear;
+    }
+
+    yearSelectEl.addEventListener('change', (e) => {
+      selectedYear = e.target.value;
+      if (currentGrouping === 'Gender') {
+        CURRENT_DATA = DATASETS.Gender[selectedYear] || [];
+      }
+      updateViewTitle();
+      updateAll();
+    });
+  }
 
   document.getElementById("sortSelect").addEventListener("change", updateAll);
 }

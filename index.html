@@ -453,7 +453,45 @@
 
   .flower-group {
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .rank-badge {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .flower-group[data-top="true"] .rank-badge {
+    opacity: 1;
+  }
+
+  /* Стили для лучших показателей */
+  .flower-group[data-top="true"][data-sort="desc"] {
+    filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.3));
+  }
+  
+  .flower-group[data-top="true"][data-sort="desc"] .rank-badge {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  }
+
+  /* Стили для худших показателей */
+  .flower-group[data-top="true"][data-sort="asc"] {
+    filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.3));
+  }
+  
+  .flower-group[data-top="true"][data-sort="asc"] .rank-badge {
+    background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
   }
 
   .flower-center {
@@ -2278,6 +2316,53 @@ function hideDetailCard() {
   document.getElementById('detailCard').style.display = 'none';
 }
 
+function updateRanks(displayData) {
+  const sortSelect = document.getElementById('sortSelect');
+  const sortOrder = sortSelect ? sortSelect.value : 'score_desc';
+  const isAscending = sortOrder === "score_asc";
+  
+  // Create or update rank counter
+  let rankCounter = document.querySelector('.rank-counter');
+  if (!rankCounter) {
+    rankCounter = document.createElement('div');
+    rankCounter.className = 'rank-counter';
+    document.body.appendChild(rankCounter);
+  }
+
+  // Update flowers ranks
+  svg.selectAll(".flower").each(function(d, i) {
+    const isTop = i < 3;
+    d3.select(this)
+      .classed("top-best", isTop && !isAscending)
+      .classed("top-worst", isTop && isAscending);
+    
+    // Add or update rank badge
+    let badge = d3.select(this).select(".rank-badge");
+    if (badge.empty() && isTop) {
+      badge = d3.select(this).append("text")
+        .attr("class", "rank-badge")
+        .attr("text-anchor", "middle")
+        .attr("y", -40);
+    }
+    
+    if (isTop) {
+      const rankText = `${i + 1}${i === 0 ? "st" : i === 1 ? "nd" : "rd"}`;
+      badge.text(rankText).style("opacity", 1);
+    } else if (!badge.empty()) {
+      badge.style("opacity", 0);
+    }
+  });
+
+  // Update counter text
+  if (displayData.length > 0) {
+    rankCounter.className = `rank-counter ${isAscending ? 'worst' : 'best'}`;
+    rankCounter.textContent = `Топ 3 ${isAscending ? 'Худших' : 'Лучших'}`;
+    rankCounter.style.display = 'block';
+  } else {
+    rankCounter.style.display = 'none';
+  }
+}
+
 function updateAll() {
   // Calculate overall scores
   CURRENT_DATA.forEach(d => { d.overallScore = overallScore(d); });
@@ -2285,19 +2370,23 @@ function updateAll() {
   // Create a copy for manipulation
   let displayData = CURRENT_DATA.slice();
   
-  // Apply Top-N filter first (always by overall score)
+  // First, sort the entire dataset based on selected criteria
+  const sortSelect = document.getElementById('sortSelect');
+  const sortOrder = sortSelect ? sortSelect.value : 'score_desc';
+  displayData = sortData(displayData);
+  
+  // Add rank information to each item based on its position in the sorted list
+  displayData.forEach((item, index) => {
+    item.rank = index + 1;
+    item.isTop = index < 3; // Mark top 3 items
+  });
+  
+  // Apply top N filter if selected, but preserve the rank information
   const topSel = document.getElementById('topSelect') ? document.getElementById('topSelect').value : 'all';
   if (topSel && topSel !== 'all') {
     const n = parseInt(topSel, 10) || displayData.length;
-    // Sort by score, take top N
-    displayData = displayData.sort((a,b) => d3.descending(a.overallScore, b.overallScore)).slice(0, n);
+    displayData = displayData.slice(0, n);
   }
-  
-  // Then apply the user's chosen sort order
-  sortData(displayData);
-
-  // Update display data with sorted version
-  displayData = sortData(displayData);
 
   const scores = displayData.map(d => d.overallScore || 0);
   const minS = d3.min(scores) || 0;
@@ -2306,6 +2395,22 @@ function updateAll() {
   const yMax = Math.min(10, maxS + 0.5);
   const yLocal = d3.scaleLinear().domain([yMin, yMax]).range([HEIGHT - PAD_BOTTOM, PAD_TOP]);
   const xScale = getXScale(displayData);
+
+  // Обновляем группы цветков
+  const flowerGroups = svg.selectAll(".flower-group")
+    .data(displayData, d => d.id)
+    .join('g')
+    .attr('class', 'flower-group')
+    .attr('transform', (d, i) => `translate(${xScale(i)}, ${yLocal(d.overallScore)})`)
+    .attr('data-top', d => d.isTop ? 'true' : 'false')
+    .attr('data-sort', d => sortOrder.endsWith('asc') ? 'asc' : 'desc');
+
+  // Добавляем или обновляем бейджи с рангами
+  const badges = flowerGroups.selectAll('.rank-badge')
+    .data(d => d.isTop ? [d] : [])
+    .join('text')
+    .attr('class', 'rank-badge')
+    .text(d => `#${d.rank}`);
 
   const stems = svg.selectAll(".stem-group").data(displayData, d => d.id);
 

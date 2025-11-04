@@ -23,6 +23,23 @@
     --color-dark: #17173f;
     --color-navy: #212153;
     --color-peach: #f3b77b;
+
+    /* OECD-inspired palette */
+    --color-blue: #6BAED6;
+    --color-green: #74C476;
+    --color-orange: #FD8D3C;
+    --color-purple: #9E9AC8;
+    --color-red: #E6550D;
+    --color-teal: #41B6C4;
+    --color-yellow: #FEB24C;
+    --color-lavender: #BCBDDC;
+    --color-sage: #8C9E8C;
+    --color-aqua: #5B8FA8;
+    --bg-light: #F7FBFF;
+    --grid-line: rgba(91,143,168,0.15);
+    --border-light: #D1E0E0;
+    --text-primary: #2C3E50;
+    --text-secondary: #5B8FA8;
   }
 
   @keyframes float {
@@ -182,15 +199,23 @@
 
   body {
     margin: 0;
-    background: var(--bg);
+    background: var(--bg-light);
     font-family: var(--font);
-    color: var(--text-main);
+    color: var(--text-primary);
     line-height: 1.4;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
     overflow-x: hidden;
+  }
+
+  /* Make UI and SVG texts black for improved readability */
+  .main-area, .sidebar, .controls-panel, .detail-card, .block-label, .slider-head, .slider-desc, select, option {
+    color: #000 !important;
+  }
+  svg text, .stem-label, .score-text {
+    fill: #000 !important;
   }
 
   .content-wrapper {
@@ -359,21 +384,33 @@
   }
 
   .stem-label {
-    fill: var(--text-main);
+    fill: #000000 !important;
     font-size: 22px;
     font-weight: 600;
     text-anchor: middle;
     dominant-baseline: middle;
     pointer-events: none;
+    paint-order: stroke;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-opacity: 0.8;
   }
 
   .score-text {
+    fill: #000000 !important;
     font-size: 20px;
     font-weight: 700;
-    fill: #374151;
     text-anchor: middle;
     alignment-baseline: middle;
     pointer-events: none;
+    text-shadow: 
+      0 0 3px #ffffff,
+      0 0 3px #ffffff,
+      0 0 3px #ffffff !important;
+    paint-order: stroke;
+    stroke: #ffffff;
+    stroke-width: 3px;
+    stroke-opacity: 0.8;
   }
 
   .flower-group {
@@ -387,26 +424,31 @@
   }
 
   .petal {
-    fill-opacity: 0.8;
-    stroke: rgba(255,255,255,0.4);
-    stroke-width: 0.4px;
+    fill-opacity: 0.85;
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 0.6px;
     pointer-events: none;
-    transition: transform 0.3s ease;
+    transition: all 0.2s ease;
   }
 
   .flower-group:hover .petal {
+    fill-opacity: 0.95;
+    stroke-width: 1px;
     transform: scale(1.05);
   }
 
   .flower-group.highlight .petal {
-    stroke-width: 0.8px;
+    stroke-width: 1px;
     transform: scale(1.05);
   }
 
-  .score-text {
-    fill: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-    font-weight: 700;
+  /* Ensure all text in flowers is black */
+  .flower-group text {
+    fill: #000000 !important;
+    paint-order: stroke;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-opacity: 0.8;
   }
 
   .hit-area {
@@ -627,19 +669,27 @@ const PAD_RIGHT = 20;
 // Create color scales for the flower center and petals
 const colorScaleYellow = d3.scaleLinear()
   .domain([0, 5, 10])
-  .range(['#F7B32B', '#FFD95A', '#FFF2B2'])
+  .range(['#FFF9C4', '#FFEE58', '#FDD835']) // Softer yellows for better contrast
   .interpolate(d3.interpolateRgb);
 
 const petalGradient = (id) => `url(#petalGradient${id})`;
 
-// Return a distinct yellow/golden color for a given dimension index
+// Return color from OECD-inspired color palette
 function colorForDim(i) {
-  // Use a rainbow-like sequential interpolator but avoid the pure yellow
-  // region so the center (yellow) remains visually distinct.
-  const steps = Math.max(1, DIMENSIONS.length - 1);
-  // map i -> [0.06 .. 0.94] portion of the rainbow to skip the bright yellow center
-  const t = 0.06 + (i / steps) * 0.88;
-  return d3.interpolateRainbow(t);
+  const oecdColors = [
+    "#6BAED6",  // Blue
+    "#74C476",  // Green  
+    "#FD8D3C",  // Orange
+    "#9E9AC8",  // Purple
+    "#E6550D",  // Red
+    "#41B6C4",  // Teal
+    "#FEB24C",  // Yellow
+    "#BCBDDC",  // Lavender
+    "#8C9E8C",  // Sage
+    "#DE9ED6",  // Pink
+    "#5B8FA8"   // Aqua
+  ];
+  return oecdColors[i % oecdColors.length];
 }
 
 function randomScore() {
@@ -1830,6 +1880,9 @@ function updateAll() {
     .attr("x", d => -(HEIGHT - PAD_BOTTOM - 10))
     .attr("y", d => xScale(d.name));
 
+  // ensure stem labels are black
+  stemsMerge.select(".stem-label").attr('fill', '#000');
+
   // Setup gradient definition if not exists
   const defs = svg.selectAll("defs").data([0]).join("defs");
   const gradient = defs.selectAll("#petalGradient").data([0])
@@ -1861,8 +1914,9 @@ function updateAll() {
       .merge(centerCircle)
       .attr("r", centerR)
       .attr("fill", d => colorScaleYellow(d.overallScore))
-      .attr("stroke", "rgba(0,0,0,0.1)")
-      .attr("stroke-width", 1);
+      .attr("stroke", "#000000") // Black border for contrast
+      .attr("stroke-width", 1.5)
+      .attr("stroke-opacity", 0.3);
 
     // Update petals: include index so each dimension gets its own color
     const petals = gFlower.selectAll(".petal").data(
@@ -1893,6 +1947,7 @@ function updateAll() {
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .merge(scoreText)
+      .attr('fill', '#000')
       .text(d => d.overallScore.toFixed(2));
 
     const HIT_RADIUS = 50; // Increased hit area for better interaction

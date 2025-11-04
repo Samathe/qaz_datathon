@@ -1159,7 +1159,11 @@ function updateTrendViz() {
     .attr('cx',d=>xScale(d.year)).attr('cy',d=>yScale(d.value)).attr('r',4).attr('fill',d=>d.color).attr('stroke','#fff').attr('stroke-width',2)
     .on('mouseover',function(event,d){ tooltip.transition().duration(200).style('opacity',0.95); tooltip.html(`<div style="font-weight:600;margin-bottom:4px;">${d.itemName} - ${d.year}</div><div>Индекс: <strong>${d.value.toFixed(2)}</strong></div>${d.rawData?`<div style="margin-top:4px;font-size:11px;color:#666;">Нажмите для деталей</div>`:''}`).style('left',(event.pageX+10)+'px').style('top',(event.pageY-28)+'px'); d3.select(this).attr('r',6).attr('stroke-width',3); })
     .on('mouseout',function(){ tooltip.transition().duration(500).style('opacity',0); d3.select(this).attr('r',4).attr('stroke-width',2); })
-    .on('click',function(event,d){ if (d.rawData && typeof window.showDetailCard === 'function') window.showDetailCard(d.rawData, event.clientX, event.clientY); });
+    .on('click',function(event,d){ 
+      if (d.rawData && typeof window.showDetailCard === 'function') {
+        window.showDetailCard(d.rawData, event.clientX, event.clientY, DIMENSIONS, colorForDim);
+      }
+    });
 
   const legend = svg.append('g').attr('transform',`translate(${width + margin.left + 20}, ${margin.top})`);
   const legendItems = legend.selectAll('.trend-legend').data(trendData).enter().append('g').attr('class','trend-legend').attr('transform',(d,i)=>`translate(0, ${i*20})`).style('cursor','pointer').on('click',function(event,d){ const path = svg.selectAll(`[data-item="${d.name}"]`); const current = path.style('opacity') || '1'; const next = current === '0.3' ? '1' : '0.3'; path.style('opacity', next); d3.select(this).classed('hidden', next==='0.3'); });
@@ -2239,44 +2243,11 @@ function getXScale(data) {
     .padding(pad);
 }
 
+// Перенаправляем вызовы в detailCard.js
 function showDetailCard(item, clientX, clientY) {
-  const card = document.getElementById('detailCard');
-  card.style.display = 'block';
-  
-  let html = `<div class="detail-header">${item.name}</div>`;
-  html += `<div class="scale-row">`;
-  for (let i = 0; i <= 10; i++) {
-    html += `<span>${i}</span>`;
+  if (typeof window.showDetailCard === 'function') {
+    window.showDetailCard(item, clientX, clientY, DIMENSIONS, colorForDim);
   }
-  html += `</div>`;
-  
-  DIMENSIONS.forEach((dim, i) => {
-    const val = item.dims[dim.key] || 0;
-    const pct = (val / 10) * 100;
-    const col = colorForDim(i);
-    html += `<div class="bar-row">
-      <div class="bar-label">${dim.label}</div>
-      <div class="bar-wrapper">
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${pct}%;background:${col};"></div>
-        </div>
-        <div class="bar-value">${val.toFixed(1)}</div>
-      </div>
-    </div>`;
-  });
-  
-  html += `<div class="detail-extra">`;
-  html += `<strong>Взвешенный индекс:</strong> ${item.overallScore.toFixed(2)}<br>`;
-  if (item.satisfaction != null) {
-    html += `<strong>Удовлетворённость жизнью:</strong> ${item.satisfaction.toFixed(2)} / 10`;
-  }
-  html += `</div>`;
-  
-  card.innerHTML = html;
-  
-  // Show the card first with visibility hidden to get correct measurements
-  card.style.visibility = 'hidden';
-  card.style.display = 'block';
   
   const rect = card.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
@@ -2448,7 +2419,7 @@ function updateAll() {
         // Show detail card with slight delay to prevent flickering
         clearTimeout(window._detailCardTimeout);
         window._detailCardTimeout = setTimeout(() => {
-          showDetailCard(item, mouseX, mouseY);
+          window.showDetailCard(item, mouseX, mouseY, DIMENSIONS, colorForDim);
         }, 50);
       })
       .on("click", (event) => {

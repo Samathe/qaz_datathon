@@ -543,6 +543,20 @@
           <select id="yearSelect"></select>
         </div>
       </div>
+          <div class="group-block">
+            <div class="block-label">Показать:</div>
+            <div class="select-wrapper">
+              <select id="topSelect">
+                <option value="all">Все</option>
+                <option value="1">Top 1</option>
+                <option value="2">Top 2</option>
+                <option value="3">Top 3</option>
+                <option value="4">Top 4</option>
+                <option value="5">Top 5</option>
+                <option value="10">Top 10</option>
+              </select>
+            </div>
+          </div>
     </div>
   </aside>
 
@@ -612,36 +626,630 @@ function randomScore() {
 }
 
 function generateTestData() {
-  DATASETS.Region = [
-    'Алматы', 'Астана', 'Шымкент', 'Акмолинская обл.', 'Актюбинская обл.',
-    'Алматинская обл.', 'Атырауская обл.', 'ВКО', 'Жамбылская обл.',
-    'ЗКО', 'Карагандинская обл.', 'Костанайская обл.', 'Кызылординская обл.',
-    'Мангистауская обл.', 'Павлодарская обл.', 'СКО', 'Туркестанская обл.'
-  ].map((name, i) => {
-    const dims = {};
-    DIMENSIONS.forEach(dim => { dims[dim.key] = randomScore(); });
-    return {
-      id: 'Region_' + i,
-      name,
-      shortName: name.length > 15 ? name.slice(0, 13) + '…' : name,
-      dims,
-      satisfaction: +(Math.random() * 3 + 5).toFixed(2),
-      overallScore: 0
-    };
-  });
+  // Only initialize datasets that don't exist yet
+  if (!DATASETS.Region) {
+    DATASETS.Region = [
+      'Алматы', 'Астана', 'Шымкент', 'Акмолинская обл.', 'Актюбинская обл.',
+      'Алматинская обл.', 'Атырауская обл.', 'ВКО', 'Жамбылская обл.',
+      'ЗКО', 'Карагандинская обл.', 'Костанайская обл.', 'Кызылординская обл.',
+      'Мангистауская обл.', 'Павлодарская обл.', 'СКО', 'Туркестанская обл.'
+    ];
+  }
 
-  DATASETS.AgeGroup = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'].map((name, i) => {
-    const dims = {};
-    DIMENSIONS.forEach(dim => { dims[dim.key] = randomScore(); });
-    return {
-      id: 'AgeGroup_' + i,
-      name,
-      shortName: name,
-      dims,
-      satisfaction: +(Math.random() * 3 + 5).toFixed(2),
-      overallScore: 0
-    };
-  });
+  // Real regional data by year (2020-2024)
+  DATASETS.Region = {
+  '2020': [
+    { id: 'Region_0', name: 'Акмолинская область', shortName: 'Акмолинская обл.', dims: {
+      food_insecurity: 10.0, missed_payments: 6.67, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 9.72, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.27, financial_situation: 7.11, housing_quality: 7.48,
+      leisure_time: 7.49, life_index: 7.87, living_condition: 7.64, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_1', name: 'Актюбинская область', shortName: 'Актюбинская обл.', dims: {
+      food_insecurity: 0.77, missed_payments: 6.67, internet_access: 5.71, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.37, financial_situation: 6.94, housing_quality: 7.49,
+      leisure_time: 7.47, life_index: 7.84, living_condition: 7.59, prof_wellbeing: 7.83 }, overallScore:0 },
+    { id: 'Region_2', name: 'Алматинская область', shortName: 'Алматинская обл.', dims: {
+      food_insecurity: 5.71, missed_payments: 8.57, internet_access: 8.57, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 8.57,
+      welfare_trend: 6.5, health_index: 7.24, financial_situation: 7.09, housing_quality: 7.37,
+      leisure_time: 7.33, life_index: 7.93, living_condition: 7.68, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_3', name: 'Атырауская область', shortName: 'Атырауская обл.', dims: {
+      food_insecurity: 8.33, missed_payments: 6.67, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.0, health_index: 7.25, financial_situation: 7.13, housing_quality: 7.46,
+      leisure_time: 7.59, life_index: 7.76, living_condition: 7.63, prof_wellbeing: 8.0 }, overallScore:0 },
+    { id: 'Region_4', name: 'Восточно-Казахстанская область', shortName: 'ВКО', dims: {
+      food_insecurity: 7.14, missed_payments: 8.57, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.4, health_index: 7.28, financial_situation: 7.15, housing_quality: 7.4,
+      leisure_time: 7.46, life_index: 7.84, living_condition: 7.71, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_5', name: 'г. Алматы', shortName: 'г. Алматы', dims: {
+      food_insecurity: 8.57, missed_payments: 8.57, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.57, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.8, health_index: 7.25, financial_situation: 7.15, housing_quality: 7.51,
+      leisure_time: 7.55, life_index: 7.81, living_condition: 7.69, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_6', name: 'г. Астана', shortName: 'г. Астана', dims: {
+      food_insecurity: 10.0, missed_payments: 10.0, internet_access: 6.43, unmet_healthcare: 0.0,
+      clothing_afford: 9.98, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.3, health_index: 7.3, financial_situation: 6.99, housing_quality: 7.45,
+      leisure_time: 7.53, life_index: 7.92, living_condition: 7.67, prof_wellbeing: 7.93 }, overallScore:0 },
+    { id: 'Region_7', name: 'г. Шымкент', shortName: 'г. Шымкент', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.79, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 4.5, health_index: 7.17, financial_situation: 7.06, housing_quality: 7.4,
+      leisure_time: 7.37, life_index: 7.94, living_condition: 7.54, prof_wellbeing: 7.97 }, overallScore:0 },
+    { id: 'Region_8', name: 'Жамбылская область', shortName: 'Жамбылская обл.', dims: {
+      food_insecurity: 6.67, missed_payments: 6.67, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.75, internet_use: 7.78, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.5, health_index: 7.2, financial_situation: 7.02, housing_quality: 7.58,
+      leisure_time: 7.43, life_index: 7.81, living_condition: 7.56, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_9', name: 'Западно - Казахстанская область', shortName: 'ЗКО', dims: {
+      food_insecurity: 8.33, missed_payments: 10.0, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 9.85, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.7, health_index: 7.23, financial_situation: 6.99, housing_quality: 7.44,
+      leisure_time: 7.68, life_index: 7.81, living_condition: 7.64, prof_wellbeing: 7.8 }, overallScore:0 },
+    { id: 'Region_10', name: 'Карагандинская область', shortName: 'Карагандинская обл.', dims: {
+      food_insecurity: 7.14, missed_payments: 10.0, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 9.93, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.5, health_index: 7.2, financial_situation: 7.02, housing_quality: 7.44,
+      leisure_time: 7.37, life_index: 7.77, living_condition: 7.6, prof_wellbeing: 7.9 }, overallScore:0 },
+    { id: 'Region_11', name: 'Костанайская область', shortName: 'Костанайская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 10.0, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 9.81, internet_use: 8.75, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 6.6, health_index: 7.24, financial_situation: 7.1, housing_quality: 7.39,
+      leisure_time: 7.48, life_index: 7.81, living_condition: 7.73, prof_wellbeing: 7.88 }, overallScore:0 },
+    { id: 'Region_12', name: 'Кызылординская область', shortName: 'Кызылординская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 6.25, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 5.1, health_index: 7.17, financial_situation: 6.97, housing_quality: 7.48,
+      leisure_time: 7.42, life_index: 7.92, living_condition: 7.68, prof_wellbeing: 7.79 }, overallScore:0 },
+    { id: 'Region_13', name: 'Мангистауская область', shortName: 'Мангистауская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 10.01, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 4.5, health_index: 7.21, financial_situation: 7.08, housing_quality: 7.35,
+      leisure_time: 7.54, life_index: 7.91, living_condition: 7.51, prof_wellbeing: 7.76 }, overallScore:0 },
+    { id: 'Region_14', name: 'Павлодарская область', shortName: 'Павлодарская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 3.21, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 7.0, health_index: 7.15, financial_situation: 6.99, housing_quality: 7.61,
+      leisure_time: 7.56, life_index: 7.69, living_condition: 7.65, prof_wellbeing: 7.9 }, overallScore:0 },
+    { id: 'Region_15', name: 'Северо-Казахстанская область', shortName: 'СКО', dims: {
+      food_insecurity: 7.78, missed_payments: 5.56, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.6, health_index: 7.19, financial_situation: 7.08, housing_quality: 7.48,
+      leisure_time: 7.51, life_index: 7.76, living_condition: 7.68, prof_wellbeing: 7.94 }, overallScore:0 },
+    { id: 'Region_16', name: 'Туркестанская область', shortName: 'Туркестанская обл.', dims: {
+      food_insecurity: 8.89, missed_payments: 5.56, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 10.04, internet_use: 8.89, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.9, health_index: 7.2, financial_situation: 7.1, housing_quality: 7.48,
+      leisure_time: 7.51, life_index: 7.97, living_condition: 7.58, prof_wellbeing: 7.96 }, overallScore:0 }
+  ],
+  '2021': [
+    { id: 'Region_0', name: 'Акмолинская область', shortName: 'Акмолинская обл.', dims: {
+      food_insecurity: 10.0, missed_payments: 6.67, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 9.72, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.24, financial_situation: 7.01, housing_quality: 7.51,
+      leisure_time: 7.4, life_index: 7.87, living_condition: 7.77, prof_wellbeing: 7.74 }, overallScore:0 },
+    { id: 'Region_1', name: 'Актюбинская область', shortName: 'Актюбинская обл.', dims: {
+      food_insecurity: 0.77, missed_payments: 6.67, internet_access: 5.71, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.31, financial_situation: 7.06, housing_quality: 7.49,
+      leisure_time: 7.45, life_index: 7.81, living_condition: 7.66, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_2', name: 'Алматинская область', shortName: 'Алматинская обл.', dims: {
+      food_insecurity: 5.71, missed_payments: 8.57, internet_access: 8.57, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 8.57,
+      welfare_trend: 6.5, health_index: 7.18, financial_situation: 7.09, housing_quality: 7.47,
+      leisure_time: 7.46, life_index: 7.84, living_condition: 7.54, prof_wellbeing: 7.73 }, overallScore:0 },
+    { id: 'Region_3', name: 'Атырауская область', shortName: 'Атырауская обл.', dims: {
+      food_insecurity: 8.33, missed_payments: 6.67, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.0, health_index: 7.27, financial_situation: 7.09, housing_quality: 7.36,
+      leisure_time: 7.35, life_index: 7.8, living_condition: 7.54, prof_wellbeing: 7.88 }, overallScore:0 },
+    { id: 'Region_4', name: 'Восточно-Казахстанская область', shortName: 'ВКО', dims: {
+      food_insecurity: 7.14, missed_payments: 8.57, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.4, health_index: 7.36, financial_situation: 7.16, housing_quality: 7.42,
+      leisure_time: 7.45, life_index: 7.79, living_condition: 7.55, prof_wellbeing: 7.72 }, overallScore:0 },
+    { id: 'Region_5', name: 'г. Алматы', shortName: 'г. Алматы', dims: {
+      food_insecurity: 8.57, missed_payments: 8.57, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.57, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.8, health_index: 7.26, financial_situation: 7.16, housing_quality: 7.36,
+      leisure_time: 7.42, life_index: 7.82, living_condition: 7.52, prof_wellbeing: 7.65 }, overallScore:0 },
+    { id: 'Region_6', name: 'г. Астана', shortName: 'г. Астана', dims: {
+      food_insecurity: 10.0, missed_payments: 10.0, internet_access: 6.43, unmet_healthcare: 0.0,
+      clothing_afford: 9.98, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.3, health_index: 7.28, financial_situation: 7.09, housing_quality: 7.3,
+      leisure_time: 7.42, life_index: 7.81, living_condition: 7.47, prof_wellbeing: 7.56 }, overallScore:0 },
+    { id: 'Region_7', name: 'г. Шымкент', shortName: 'г. Шымкент', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.79, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 4.5, health_index: 7.29, financial_situation: 7.12, housing_quality: 7.26,
+      leisure_time: 7.38, life_index: 7.62, living_condition: 7.4, prof_wellbeing: 7.92 }, overallScore:0 },
+    { id: 'Region_8', name: 'Жамбылская область', shortName: 'Жамбылская обл.', dims: {
+      food_insecurity: 6.67, missed_payments: 6.67, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.75, internet_use: 7.78, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.5, health_index: 7.31, financial_situation: 7.12, housing_quality: 7.53,
+      leisure_time: 7.35, life_index: 7.77, living_condition: 7.66, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_9', name: 'Западно - Казахстанская область', shortName: 'ЗКО', dims: {
+      food_insecurity: 8.33, missed_payments: 10.0, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 9.85, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.7, health_index: 7.21, financial_situation: 7.06, housing_quality: 7.48,
+      leisure_time: 7.43, life_index: 7.89, living_condition: 7.69, prof_wellbeing: 7.77 }, overallScore:0 },
+    { id: 'Region_10', name: 'Карагандинская область', shortName: 'Карагандинская обл.', dims: {
+      food_insecurity: 7.14, missed_payments: 10.0, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 9.93, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.5, health_index: 7.3, financial_situation: 7.17, housing_quality: 7.55,
+      leisure_time: 7.39, life_index: 7.85, living_condition: 7.73, prof_wellbeing: 7.77 }, overallScore:0 },
+    { id: 'Region_11', name: 'Костанайская область', shortName: 'Костанайская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 10.0, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 9.81, internet_use: 8.75, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 6.6, health_index: 7.21, financial_situation: 7.17, housing_quality: 7.55,
+      leisure_time: 7.4, life_index: 7.9, living_condition: 7.67, prof_wellbeing: 7.81 }, overallScore:0 },
+    { id: 'Region_12', name: 'Кызылординская область', shortName: 'Кызылординская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 6.25, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 5.1, health_index: 7.2, financial_situation: 7.22, housing_quality: 7.41,
+      leisure_time: 7.35, life_index: 7.89, living_condition: 7.63, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_13', name: 'Мангистауская область', shortName: 'Мангистауская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 10.01, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 4.5, health_index: 7.34, financial_situation: 7.06, housing_quality: 7.31,
+      leisure_time: 7.44, life_index: 7.86, living_condition: 7.6, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_14', name: 'Павлодарская область', shortName: 'Павлодарская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 3.21, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 7.0, health_index: 7.28, financial_situation: 7.23, housing_quality: 7.43,
+      leisure_time: 7.44, life_index: 7.84, living_condition: 7.61, prof_wellbeing: 7.77 }, overallScore:0 },
+    { id: 'Region_15', name: 'Северо-Казахстанская область', shortName: 'СКО', dims: {
+      food_insecurity: 7.78, missed_payments: 5.56, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.6, health_index: 7.25, financial_situation: 7.22, housing_quality: 7.49,
+      leisure_time: 7.44, life_index: 7.82, living_condition: 7.62, prof_wellbeing: 7.83 }, overallScore:0 },
+    { id: 'Region_16', name: 'Туркестанская область', shortName: 'Туркестанская обл.', dims: {
+      food_insecurity: 8.89, missed_payments: 5.56, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 10.04, internet_use: 8.89, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.9, health_index: 7.33, financial_situation: 7.22, housing_quality: 7.54,
+      leisure_time: 7.45, life_index: 7.77, living_condition: 7.59, prof_wellbeing: 7.89 }, overallScore:0 }
+  ],
+  '2022': [
+    { id: 'Region_0', name: 'Акмолинская область', shortName: 'Акмолинская обл.', dims: {
+      food_insecurity: 10.0, missed_payments: 6.67, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 9.72, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.32, financial_situation: 6.99, housing_quality: 7.47,
+      leisure_time: 7.56, life_index: 7.4, living_condition: 7.58, prof_wellbeing: 7.71 }, overallScore:0 },
+    { id: 'Region_1', name: 'Актюбинская область', shortName: 'Актюбинская обл.', dims: {
+      food_insecurity: 0.77, missed_payments: 6.67, internet_access: 5.71, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.6, health_index: 7.39, financial_situation: 7.11, housing_quality: 7.58,
+      leisure_time: 7.43, life_index: 7.48, living_condition: 7.51, prof_wellbeing: 7.83 }, overallScore:0 },
+    { id: 'Region_2', name: 'Алматинская область', shortName: 'Алматинская обл.', dims: {
+      food_insecurity: 5.71, missed_payments: 8.57, internet_access: 8.57, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 8.57,
+      welfare_trend: 6.5, health_index: 7.15, financial_situation: 7.0, housing_quality: 7.61,
+      leisure_time: 7.34, life_index: 7.35, living_condition: 7.61, prof_wellbeing: 7.8 }, overallScore:0 },
+    { id: 'Region_3', name: 'Атырауская область', shortName: 'Атырауская обл.', dims: {
+      food_insecurity: 8.33, missed_payments: 6.67, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 10.0, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.0, health_index: 7.2, financial_situation: 7.14, housing_quality: 7.53,
+      leisure_time: 7.39, life_index: 7.47, living_condition: 7.5, prof_wellbeing: 7.85 }, overallScore:0 },
+    { id: 'Region_4', name: 'Восточно-Казахстанская область', shortName: 'ВКО', dims: {
+      food_insecurity: 7.14, missed_payments: 8.57, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.4, health_index: 7.26, financial_situation: 7.06, housing_quality: 7.57,
+      leisure_time: 7.33, life_index: 7.56, living_condition: 7.56, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_5', name: 'г. Алматы', shortName: 'г. Алматы', dims: {
+      food_insecurity: 8.57, missed_payments: 8.57, internet_access: 3.67, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.57, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 6.8, health_index: 7.38, financial_situation: 7.2, housing_quality: 7.66,
+      leisure_time: 7.56, life_index: 7.59, living_condition: 7.63, prof_wellbeing: 7.83 }, overallScore:0 },
+    { id: 'Region_6', name: 'г. Астана', shortName: 'г. Астана', dims: {
+      food_insecurity: 10.0, missed_payments: 10.0, internet_access: 6.43, unmet_healthcare: 0.0,
+      clothing_afford: 9.98, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.3, health_index: 7.31, financial_situation: 7.05, housing_quality: 7.69,
+      leisure_time: 7.53, life_index: 7.45, living_condition: 7.58, prof_wellbeing: 7.79 }, overallScore:0 },
+    { id: 'Region_7', name: 'г. Шымкент', shortName: 'г. Шымкент', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 9.79, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 4.5, health_index: 7.31, financial_situation: 7.05, housing_quality: 7.54,
+      leisure_time: 7.33, life_index: 7.62, living_condition: 7.69, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_8', name: 'Жамбылская область', shortName: 'Жамбылская обл.', dims: {
+      food_insecurity: 6.67, missed_payments: 6.67, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.75, internet_use: 7.78, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.5, health_index: 7.46, financial_situation: 7.03, housing_quality: 7.65,
+      leisure_time: 7.4, life_index: 7.48, living_condition: 7.71, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_9', name: 'Западно - Казахстанская область', shortName: 'ЗКО', dims: {
+      food_insecurity: 8.33, missed_payments: 10.0, internet_access: 5.14, unmet_healthcare: 0.0,
+      clothing_afford: 9.85, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 5.7, health_index: 7.31, financial_situation: 6.98, housing_quality: 7.54,
+      leisure_time: 7.39, life_index: 7.54, living_condition: 7.6, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_10', name: 'Карагандинская область', shortName: 'Карагандинская обл.', dims: {
+      food_insecurity: 7.14, missed_payments: 10.0, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 9.93, internet_use: 10.0, social_afford: 10.0, holiday_afford: 10.0,
+      welfare_trend: 7.5, health_index: 7.27, financial_situation: 7.06, housing_quality: 7.58,
+      leisure_time: 7.42, life_index: 7.48, living_condition: 7.61, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_11', name: 'Костанайская область', shortName: 'Костанайская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 10.0, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 9.81, internet_use: 8.75, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 6.6, health_index: 7.32, financial_situation: 6.99, housing_quality: 7.57,
+      leisure_time: 7.51, life_index: 7.47, living_condition: 7.5, prof_wellbeing: 7.77 }, overallScore:0 },
+    { id: 'Region_12', name: 'Кызылординская область', shortName: 'Кызылординская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 6.25, internet_access: 4.82, unmet_healthcare: 0.0,
+      clothing_afford: 9.99, internet_use: 7.5, social_afford: 10.0, holiday_afford: 8.75,
+      welfare_trend: 5.1, health_index: 7.23, financial_situation: 6.95, housing_quality: 7.69,
+      leisure_time: 7.4, life_index: 7.44, living_condition: 7.62, prof_wellbeing: 7.81 }, overallScore:0 },
+    { id: 'Region_13', name: 'Мангистауская область', shortName: 'Мангистауская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 5.51, unmet_healthcare: 0.0,
+      clothing_afford: 10.01, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 4.5, health_index: 7.29, financial_situation: 7.13, housing_quality: 7.62,
+      leisure_time: 7.42, life_index: 7.47, living_condition: 7.48, prof_wellbeing: 7.97 }, overallScore:0 },
+    { id: 'Region_14', name: 'Павлодарская область', shortName: 'Павлодарская обл.', dims: {
+      food_insecurity: 7.5, missed_payments: 7.5, internet_access: 3.21, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 7.5, social_afford: 10.0, holiday_afford: 7.5,
+      welfare_trend: 7.0, health_index: 7.22, financial_situation: 7.01, housing_quality: 7.61,
+      leisure_time: 7.57, life_index: 7.5, living_condition: 7.56, prof_wellbeing: 7.8 }, overallScore:0 },
+    { id: 'Region_15', name: 'Северо-Казахстанская область', shortName: 'СКО', dims: {
+      food_insecurity: 7.78, missed_payments: 5.56, internet_access: 4.29, unmet_healthcare: 0.0,
+      clothing_afford: 10.0, internet_use: 8.89, social_afford: 10.0, holiday_afford: 7.78,
+      welfare_trend: 5.6, health_index: 7.39, financial_situation: 7.0, housing_quality: 7.62,
+      leisure_time: 7.45, life_index: 7.54, living_condition: 7.61, prof_wellbeing: 7.89 }, overallScore:0 },
+    { id: 'Region_16', name: 'Туркестанская область', shortName: 'Туркестанская обл.', dims: {
+      food_insecurity: 8.89, missed_payments: 5.56, internet_access: 7.35, unmet_healthcare: 0.0,
+      clothing_afford: 10.04, internet_use: 8.89, social_afford: 10.0, holiday_afford: 6.67,
+      welfare_trend: 4.9, health_index: 7.28, financial_situation: 7.05, housing_quality: 7.69,
+      leisure_time: 7.32, life_index: 7.56, living_condition: 7.55, prof_wellbeing: 7.89 } , overallScore:0 }
+  ],
+    '2023': [
+    { id: 'Region_0', name: 'Абайская область', shortName: 'Абайска обл.', dims: {
+      food_insecurity: null, missed_payments: 9.80, internet_access: 10.00, unmet_healthcare: 5.71,
+      clothing_afford: 9.89, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.29, financial_situation: 7.29, housing_quality: 7.58,
+      leisure_time: 7.29, life_index: 7.57, living_condition: 7.64, prof_wellbeing: 7.89 }, overallScore:0 },
+    { id: 'Region_1', name: 'Акмолинская область', shortName: 'Акмолинская обл.', dims: {
+      food_insecurity: null, missed_payments: 7.14, internet_access: 10.00, unmet_healthcare: 10.00,
+      clothing_afford: 9.83, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.31, financial_situation: 7.12, housing_quality: 7.59,
+      leisure_time: 7.43, life_index: 7.61, living_condition: 7.74, prof_wellbeing: 7.74 }, overallScore:0 },
+    { id: 'Region_2', name: 'Актюбинская область', shortName: 'Актюбинская обл.', dims: {
+      food_insecurity: null, missed_payments: 8.57, internet_access: 10.00, unmet_healthcare: 6.25,
+      clothing_afford: 9.57, internet_use: 8.75, social_afford: 10.00, holiday_afford: 8.75,
+      welfare_trend: null, health_index: 7.30, financial_situation: 7.12, housing_quality: 7.62,
+      leisure_time: 7.33, life_index: 7.58, living_condition: 7.63, prof_wellbeing: 7.75 }, overallScore:0 },
+    { id: 'Region_3', name: 'Алматинская область', shortName: 'Алматинская обл.', dims: {
+      food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 8.00,
+      clothing_afford: 10.09, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.38, financial_situation: 7.17, housing_quality: 7.65,
+      leisure_time: 7.39, life_index: 7.56, living_condition: 7.61, prof_wellbeing: 7.81 }, overallScore:0 },
+    { id: 'Region_4', name: 'Атырауская область', shortName: 'Атырауская обл.', dims: {
+      food_insecurity: null, missed_payments: 9.80, internet_access: 10.00, unmet_healthcare: 8.57,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.38, financial_situation: 6.99, housing_quality: 7.62,
+      leisure_time: 7.49, life_index: 7.63, living_condition: 7.67, prof_wellbeing: 7.84 }, overallScore:0 },
+    { id: 'Region_5', name: 'Восточно-Казахстанская область', shortName: 'ВКО', dims: {
+      food_insecurity: null, missed_payments: 8.16, internet_access: 8.57, unmet_healthcare: 7.14,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.30, financial_situation: 7.06, housing_quality: 7.57,
+      leisure_time: 7.53, life_index: 7.54, living_condition: 7.68, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_6', name: 'г. Алматы', shortName: 'г. Алматы', dims: {
+      food_insecurity: null, missed_payments: 9.80, internet_access: 10.00, unmet_healthcare: 8.57,
+      clothing_afford: 9.97, internet_use: 10.00, social_afford: 10.00, holiday_afford: 8.57,
+      welfare_trend: null, health_index: 7.37, financial_situation: 7.08, housing_quality: 7.57,
+      leisure_time: 7.65, life_index: 7.53, living_condition: 7.68, prof_wellbeing: 7.75 }, overallScore:0 },
+    { id: 'Region_7', name: 'г. Астана', shortName: 'г. Астана', dims: {
+      food_insecurity: null, missed_payments: 8.16, internet_access: 10.00, unmet_healthcare: 7.14,
+      clothing_afford: 10.08, internet_use: 10.00, social_afford: 8.57, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.30, financial_situation: 7.01, housing_quality: 7.58,
+      leisure_time: 7.43, life_index: 7.52, living_condition: 7.55, prof_wellbeing: 7.87 }, overallScore:0 },
+    { id: 'Region_8', name: 'г. Шымкент', shortName: 'г. Шымкент', dims: {
+      food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 6.67,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.25, financial_situation: 7.12, housing_quality: 7.58,
+      leisure_time: 7.38, life_index: 7.48, living_condition: 7.62, prof_wellbeing: 7.78 }, overallScore:0 },
+    { id: 'Region_9', name: 'Жамбылская область', shortName: 'Жамбылская обл.', dims: {
+      food_insecurity: null, missed_payments: 8.16, internet_access: 8.57, unmet_healthcare: 7.14,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.33, financial_situation: 7.13, housing_quality: 7.63,
+      leisure_time: 7.39, life_index: 7.51, living_condition: 7.59, prof_wellbeing: 7.85 }, overallScore:0 },
+    { id: 'Region_10', name: 'Жетісу область', shortName: 'Жетісу обл.', dims: {
+      food_insecurity: null, missed_payments: null, internet_access: null, unmet_healthcare: null,
+      clothing_afford: null, internet_use: null, social_afford: null, holiday_afford: null,
+      welfare_trend: null, health_index: 7.36, financial_situation: 7.33, housing_quality: 7.52,
+      leisure_time: 7.48, life_index: 7.54, living_condition: 7.60, prof_wellbeing: 7.78 }, overallScore:0 },
+    { id: 'Region_11', name: 'Западно - Казахстанская область', shortName: 'ЗКО', dims: {
+      food_insecurity: null, missed_payments: 6.53, internet_access: 10.00, unmet_healthcare: 8.57,
+      clothing_afford: 9.92, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.42, financial_situation: 7.14, housing_quality: 7.44,
+      leisure_time: 7.47, life_index: 7.54, living_condition: 7.60, prof_wellbeing: 7.84 }, overallScore:0 },
+    { id: 'Region_12', name: 'Карагандинская область', shortName: 'Карагандинская обл.', dims: {
+      food_insecurity: null, missed_payments: 8.16, internet_access: 8.57, unmet_healthcare: 8.57,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.27, financial_situation: 7.25, housing_quality: 7.45,
+      leisure_time: 7.43, life_index: 7.59, living_condition: 7.63, prof_wellbeing: 7.82 }, overallScore:0 },
+    { id: 'Region_13', name: 'Костанайская область', shortName: 'Костанайская обл.', dims: {
+      food_insecurity: null, missed_payments: 9.52, internet_access: 10.00, unmet_healthcare: 8.33,
+      clothing_afford: 9.90, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.31, financial_situation: 7.12, housing_quality: 7.59,
+      leisure_time: 7.42, life_index: 7.54, living_condition: 7.67, prof_wellbeing: 7.81 }, overallScore:0 },
+    { id: 'Region_14', name: 'Кызылординская область', shortName: 'Кызылординская обл.', dims: {
+      food_insecurity: null, missed_payments: 6.53, internet_access: 10.00, unmet_healthcare: 5.71,
+      clothing_afford: 10.02, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.35, financial_situation: 7.13, housing_quality: 7.63,
+      leisure_time: 7.36, life_index: 7.43, living_condition: 7.57, prof_wellbeing: 7.71 }, overallScore:0 },
+    { id: 'Region_15', name: 'Мангистауская область', shortName: 'Мангистауская обл.', dims: {
+      food_insecurity: null, missed_payments: 9.52, internet_access: 10.00, unmet_healthcare: 10.00,
+      clothing_afford: 10.04, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.23, financial_situation: 7.17, housing_quality: 7.64,
+      leisure_time: 7.45, life_index: 7.57, living_condition: 7.70, prof_wellbeing: 7.81 }, overallScore:0 },
+    { id: 'Region_16', name: 'Павлодарская область', shortName: 'Павлодарская обл.', dims: {
+      food_insecurity: null, missed_payments: 6.53, internet_access: 10.00, unmet_healthcare: 8.57,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.33, financial_situation: 7.14, housing_quality: 7.65,
+      leisure_time: 7.45, life_index: 7.50, living_condition: 7.63, prof_wellbeing: 7.77 } , overallScore:0 }
+    ],
+    '2024': [
+    { id: 'Region_0', name: 'Абайская область', shortName: 'Абайска обл.', dims: {
+      food_insecurity: null, missed_payments: 6.94, internet_access: 8.75, unmet_healthcare: 8.33,
+      clothing_afford: 9.89, internet_use: 8.33, social_afford: 8.75, holiday_afford: 8.33,
+      welfare_trend: null, health_index: 7.40, financial_situation: 7.18, housing_quality: 7.69,
+      leisure_time: 7.51, life_index: 7.71, living_condition: 7.71, prof_wellbeing: 8.15 }, overallScore:0 },
+    { id: 'Region_1', name: 'Акмолинская область', shortName: 'Акмолинская обл.', dims: {
+      food_insecurity: null, missed_payments: 7.94, internet_access: 8.57, unmet_healthcare: 9.52,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.35, financial_situation: 7.22, housing_quality: 7.67,
+      leisure_time: 7.49, life_index: 7.62, living_condition: 7.61, prof_wellbeing: 8.04 }, overallScore:0 },
+    { id: 'Region_2', name: 'Актюбинская область', shortName: 'Актюбинская обл.', dims: {
+      food_insecurity: null, missed_payments: 7.94, internet_access: 10.00, unmet_healthcare: 9.52,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.41, financial_situation: 7.22, housing_quality: 7.67,
+      leisure_time: 7.40, life_index: 7.57, living_condition: 7.58, prof_wellbeing: 7.88 }, overallScore:0 },
+    { id: 'Region_3', name: 'Алматинская область', shortName: 'Алматинская обл.', dims: {
+      food_insecurity: null, missed_payments: 6.35, internet_access: 7.14, unmet_healthcare: 6.35,
+      clothing_afford: 10.00, internet_use: 8.57, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.41, financial_situation: 7.33, housing_quality: 7.62,
+      leisure_time: 7.15, life_index: 7.56, living_condition: 7.53, prof_wellbeing: 7.97 }, overallScore:0 },
+    { id: 'Region_4', name: 'Атырауская область', shortName: 'Атырауская обл.', dims: {
+      food_insecurity: null, missed_payments: 9.26, internet_access: 10.00, unmet_healthcare: 9.26,
+      clothing_afford: 9.96, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.66, financial_situation: 7.24, housing_quality: 7.75,
+      leisure_time: 7.37, life_index: 7.66, living_condition: 7.74, prof_wellbeing: 8.13 }, overallScore:0 },
+    { id: 'Region_5', name: 'Восточно-Казахстанская область', shortName: 'ВКО', dims: {
+      food_insecurity: null, missed_payments: 7.41, internet_access: 10.00, unmet_healthcare: 10.00,
+      clothing_afford: 9.79, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.49, financial_situation: 7.23, housing_quality: 7.70,
+      leisure_time: 7.49, life_index: 7.73, living_condition: 7.69, prof_wellbeing: 7.78 }, overallScore:0 },
+    { id: 'Region_6', name: 'г. Алматы', shortName: 'г. Алматы', dims: {
+      food_insecurity: null, missed_payments: 6.94, internet_access: 10.00, unmet_healthcare: 6.94,
+      clothing_afford: 10.04, internet_use: 10.00, social_afford: 8.75, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.39, financial_situation: 7.19, housing_quality: 7.65,
+      leisure_time: 7.38, life_index: 7.61, living_condition: 7.63, prof_wellbeing: 7.68 }, overallScore:0 },
+    { id: 'Region_7', name: 'г. Астана', shortName: 'г. Астана', dims: {
+      food_insecurity: null, missed_payments: 9.26, internet_access: 10.00, unmet_healthcare: 10.00,
+      clothing_afford: 9.89, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.48, financial_situation: 7.06, housing_quality: 7.53,
+      leisure_time: 7.46, life_index: 7.52, living_condition: 7.75, prof_wellbeing: 7.66 }, overallScore:0 },
+    { id: 'Region_8', name: 'г. Шымкент', shortName: 'г. Шымкент', dims: {
+      food_insecurity: null, missed_payments: 7.94, internet_access: 10.00, unmet_healthcare: 7.94,
+      clothing_afford: 9.93, internet_use: 8.57, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.33, financial_situation: 7.26, housing_quality: 7.62,
+      leisure_time: 7.56, life_index: 7.66, living_condition: 7.72, prof_wellbeing: 7.73 }, overallScore:0 },
+    { id: 'Region_9', name: 'Жамбылская область', shortName: 'Жамбылская обл.', dims: {
+      food_insecurity: null, missed_payments: 5.56, internet_access: 10.00, unmet_healthcare: 9.72,
+      clothing_afford: 9.86, internet_use: 10.00, social_afford: 10.00, holiday_afford: 9.72,
+      welfare_trend: null, health_index: 7.38, financial_situation: 7.28, housing_quality: 7.64,
+      leisure_time: 7.39, life_index: 7.65, living_condition: 7.71, prof_wellbeing: 7.83 }, overallScore:0 },
+    { id: 'Region_10', name: 'Жетісу область', shortName: 'Жетісу обл.', dims: {
+      food_insecurity: null, missed_payments: null, internet_access: null, unmet_healthcare: null,
+      clothing_afford: null, internet_use: null, social_afford: null, holiday_afford: null,
+      welfare_trend: null, health_index: 7.46, financial_situation: 7.21, housing_quality: 7.54,
+      leisure_time: 7.46, life_index: 7.74, living_condition: 7.69, prof_wellbeing: 7.97 }, overallScore:0 },
+    { id: 'Region_11', name: 'Западно - Казахстанская область', shortName: 'ЗКО', dims: {
+      food_insecurity: null, missed_payments: 9.52, internet_access: 10.00, unmet_healthcare: 7.94,
+      clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.41, financial_situation: 7.25, housing_quality: 7.59,
+      leisure_time: 7.46, life_index: 7.52, living_condition: 7.67, prof_wellbeing: 7.86 }, overallScore:0 },
+    { id: 'Region_12', name: 'Карагандинская область', shortName: 'Карагандинская обл.', dims: {
+      food_insecurity: null, missed_payments: 7.94, internet_access: 10.00, unmet_healthcare: 6.35,
+      clothing_afford: 9.96, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.45, financial_situation: 7.23, housing_quality: 7.53,
+      leisure_time: 7.36, life_index: 7.62, living_condition: 7.64, prof_wellbeing: 7.98 }, overallScore:0 },
+    { id: 'Region_13', name: 'Костанайская область', shortName: 'Костанайская обл.', dims: {
+      food_insecurity: null, missed_payments: 6.94, internet_access: 10.00, unmet_healthcare: 9.72,
+      clothing_afford: 10.09, internet_use: 10.00, social_afford: 10.00, holiday_afford: 9.72,
+      welfare_trend: null, health_index: 7.45, financial_situation: 7.28, housing_quality: 7.55,
+      leisure_time: 7.39, life_index: 7.65, living_condition: 7.61, prof_wellbeing: 7.85 }, overallScore:0 },
+    { id: 'Region_14', name: 'Кызылординская область', shortName: 'Кызылординская обл.', dims: {
+      food_insecurity: null, missed_payments: 8.33, internet_access: 10.00, unmet_healthcare: 6.94,
+      clothing_afford: 10.08, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.43, financial_situation: 7.19, housing_quality: 7.64,
+      leisure_time: 7.45, life_index: 7.58, living_condition: 7.58, prof_wellbeing: 7.94 }, overallScore:0 },
+    { id: 'Region_15', name: 'Мангистауская область', shortName: 'Мангистауская обл.', dims: {
+      food_insecurity: null, missed_payments: 6.94, internet_access: 10.00, unmet_healthcare: 8.33,
+      clothing_afford: 9.98, internet_use: 10.00, social_afford: 10.00, holiday_afford: 8.33,
+      welfare_trend: null, health_index: 7.42, financial_situation: 7.19, housing_quality: 7.49,
+      leisure_time: 7.40, life_index: 7.59, living_condition: 7.65, prof_wellbeing: 7.91 }, overallScore:0 },
+    { id: 'Region_16', name: 'Павлодарская область', shortName: 'Павлодарская обл.', dims: {
+      food_insecurity: null, missed_payments: 9.52, internet_access: 10.00, unmet_healthcare: 9.52,
+      clothing_afford: 9.92, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+      welfare_trend: null, health_index: 7.50, financial_situation: 7.25, housing_quality: 7.66,
+      leisure_time: 7.40, life_index: 7.69, living_condition: 7.67, prof_wellbeing: 7.87 } , overallScore:0 }
+    ]
+  };
+
+  // If 2023/2024 not filled, copy 2022 as placeholder so regional view shows
+  try {
+    if ((!DATASETS.Region['2023'] || DATASETS.Region['2023'].length === 0) && DATASETS.Region['2022']) {
+      DATASETS.Region['2023'] = JSON.parse(JSON.stringify(DATASETS.Region['2022']));
+    }
+    if ((!DATASETS.Region['2024'] || DATASETS.Region['2024'].length === 0) && DATASETS.Region['2022']) {
+      DATASETS.Region['2024'] = JSON.parse(JSON.stringify(DATASETS.Region['2022']));
+    }
+  } catch (err) {
+    // noop if cloning fails
+  }
+
+  // Real age-group data by year
+  DATASETS.AgeGroup = {
+    '2020': [
+      { id: 'Age_0', name: '15–17', shortName: '15–17', dims: {
+        food_insecurity: 6.67, missed_payments: 8.33, internet_access: 5.14, unmet_healthcare: null,
+        clothing_afford: 9.69, internet_use: 8.33, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 0.38, health_index: 7.28, financial_situation: 6.99, housing_quality: 7.38,
+        leisure_time: 7.52, life_index: 7.84, living_condition: 7.59, prof_wellbeing: 7.81 }, overallScore:0 },
+      { id: 'Age_1', name: '18–28', shortName: '18–28', dims: {
+        food_insecurity: 8.75, missed_payments: 8.75, internet_access: 9.64, unmet_healthcare: null,
+        clothing_afford: 9.93, internet_use: 8.75, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.20, health_index: 7.25, financial_situation: 7.04, housing_quality: 7.48,
+        leisure_time: 7.50, life_index: 7.85, living_condition: 7.58, prof_wellbeing: 7.89 }, overallScore:0 },
+      { id: 'Age_2', name: '29–38', shortName: '29–38', dims: {
+        food_insecurity: 8.89, missed_payments: 10.00, internet_access: 7.14, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.90, health_index: 7.27, financial_situation: 7.08, housing_quality: 7.49,
+        leisure_time: 7.49, life_index: 7.87, living_condition: 7.65, prof_wellbeing: 7.91 }, overallScore:0 },
+      { id: 'Age_3', name: '39–48', shortName: '39–48', dims: {
+        food_insecurity: 7.78, missed_payments: 8.89, internet_access: 6.43, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 7.78,
+        welfare_trend: 1.86, health_index: 7.27, financial_situation: 7.09, housing_quality: 7.45,
+        leisure_time: 7.47, life_index: 7.84, living_condition: 7.65, prof_wellbeing: 7.91 }, overallScore:0 },
+      { id: 'Age_4', name: '49–57', shortName: '49–57', dims: {
+        food_insecurity: 7.78, missed_payments: 7.78, internet_access: 7.14, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.58, health_index: 7.23, financial_situation: 7.05, housing_quality: 7.61,
+        leisure_time: 7.50, life_index: 7.78, living_condition: 7.60, prof_wellbeing: 7.91 }, overallScore:0 },
+      { id: 'Age_5', name: '58+', shortName: '58+', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 4.82, unmet_healthcare: null,
+        clothing_afford: 9.95, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 3.07, health_index: 7.23, financial_situation: 7.06, housing_quality: 7.49,
+        leisure_time: 7.48, life_index: 7.85, living_condition: 7.65, prof_wellbeing: 7.96 }, overallScore:0 }
+    ],
+    '2021': [
+      { id: 'Age_0', name: '15–17', shortName: '15–17', dims: {
+        food_insecurity: 8.57, missed_payments: 9.64, internet_access: 9.00, unmet_healthcare: null,
+        clothing_afford: 9.90, internet_use: 10.00, social_afford: 10.00, holiday_afford: 8.57,
+        welfare_trend: 0.41, health_index: 7.29, financial_situation: 6.90, housing_quality: 7.31,
+        leisure_time: 7.29, life_index: 7.86, living_condition: 7.66, prof_wellbeing: 7.56 }, overallScore:0 },
+      { id: 'Age_1', name: '18–28', shortName: '18–28', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.86, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.22, health_index: 7.22, financial_situation: 7.15, housing_quality: 7.44,
+        leisure_time: 7.38, life_index: 7.83, living_condition: 7.69, prof_wellbeing: 7.66 }, overallScore:0 },
+      { id: 'Age_2', name: '29–38', shortName: '29–38', dims: {
+        food_insecurity: 7.14, missed_payments: 8.04, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 2.08, health_index: 7.28, financial_situation: 7.18, housing_quality: 7.46,
+        leisure_time: 7.39, life_index: 7.87, living_condition: 7.64, prof_wellbeing: 7.94 }, overallScore:0 },
+      { id: 'Age_3', name: '39–48', shortName: '39–48', dims: {
+        food_insecurity: 7.50, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 8.75, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.81, health_index: 7.36, financial_situation: 7.20, housing_quality: 7.51,
+        leisure_time: 7.40, life_index: 7.83, living_condition: 7.62, prof_wellbeing: 7.85 }, overallScore:0 },
+      { id: 'Age_4', name: '49–57', shortName: '49–57', dims: {
+        food_insecurity: 8.57, missed_payments: 9.64, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.96, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.55, health_index: 7.27, financial_situation: 7.15, housing_quality: 7.44,
+        leisure_time: 7.44, life_index: 7.79, living_condition: 7.60, prof_wellbeing: 7.77 }, overallScore:0 },
+      { id: 'Age_5', name: '58+', shortName: '58+', dims: {
+        food_insecurity: 8.75, missed_payments: 10.00, internet_access: 9.00, unmet_healthcare: null,
+        clothing_afford: 9.91, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 2.93, health_index: 7.23, financial_situation: 7.08, housing_quality: 7.43,
+        leisure_time: 7.45, life_index: 7.79, living_condition: 7.54, prof_wellbeing: 7.79 }, overallScore:0 }
+    ],
+    '2022': [
+      { id: 'Age_0', name: '15–17', shortName: '15–17', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.99, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 0.45, health_index: 7.28, financial_situation: 7.16, housing_quality: 7.56,
+        leisure_time: 7.32, life_index: 7.51, living_condition: 7.59, prof_wellbeing: 7.82 }, overallScore:0 },
+      { id: 'Age_1', name: '18–28', shortName: '18–28', dims: {
+        food_insecurity: 8.57, missed_payments: 8.57, internet_access: 7.78, unmet_healthcare: null,
+        clothing_afford: 10.00, internet_use: 7.78, social_afford: 10.00, holiday_afford: 8.89,
+        welfare_trend: 1.21, health_index: 7.35, financial_situation: 7.06, housing_quality: 7.61,
+        leisure_time: 7.45, life_index: 7.52, living_condition: 7.55, prof_wellbeing: 7.89 }, overallScore:0 },
+      { id: 'Age_2', name: '29–38', shortName: '29–38', dims: {
+        food_insecurity: 10.00, missed_payments: 8.57, internet_access: 8.89, unmet_healthcare: null,
+        clothing_afford: 10.04, internet_use: 10.00, social_afford: 8.89, holiday_afford: 10.00,
+        welfare_trend: 2.14, health_index: 7.32, financial_situation: 7.01, housing_quality: 7.60,
+        leisure_time: 7.41, life_index: 7.47, living_condition: 7.64, prof_wellbeing: 7.87 }, overallScore:0 },
+      { id: 'Age_3', name: '39–48', shortName: '39–48', dims: {
+        food_insecurity: 9.64, missed_payments: 9.64, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.95, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.84, health_index: 7.30, financial_situation: 7.09, housing_quality: 7.57,
+        leisure_time: 7.37, life_index: 7.52, living_condition: 7.56, prof_wellbeing: 7.83 }, overallScore:0 },
+      { id: 'Age_4', name: '49–57', shortName: '49–57', dims: {
+        food_insecurity: 9.18, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.82, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 1.51, health_index: 7.30, financial_situation: 7.06, housing_quality: 7.61,
+        leisure_time: 7.44, life_index: 7.48, living_condition: 7.57, prof_wellbeing: 7.84 }, overallScore:0 },
+      { id: 'Age_5', name: '58+', shortName: '58+', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 10.03, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 2.85, health_index: 7.27, financial_situation: 7.03, housing_quality: 7.59,
+        leisure_time: 7.52, life_index: 7.49, living_condition: 7.57, prof_wellbeing: 7.74 }, overallScore:0 }
+    ],
+    '2023': [
+      { id: 'Age_0', name: '15–17', shortName: '15–17', dims: {
+        food_insecurity: null, missed_payments: 8.16, internet_access: 10.00, unmet_healthcare: 8.57,
+        clothing_afford: 9.90, internet_use: 10.00, social_afford: 8.57, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.35, financial_situation: 7.16, housing_quality: 7.51,
+        leisure_time: 7.51, life_index: 7.59, living_condition: 7.59, prof_wellbeing: 7.91 }, overallScore:0 },
+      { id: 'Age_1', name: '18–28', shortName: '18–28', dims: {
+        food_insecurity: null, missed_payments: 8.16, internet_access: 10.00, unmet_healthcare: 10.00,
+        clothing_afford: 10.08, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.38, financial_situation: 7.08, housing_quality: 7.61,
+        leisure_time: 7.38, life_index: 7.52, living_condition: 7.68, prof_wellbeing: 7.91 }, overallScore:0 },
+      { id: 'Age_2', name: '29–38', shortName: '29–38', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 8.75,
+        clothing_afford: 9.92, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.33, financial_situation: 7.10, housing_quality: 7.58,
+        leisure_time: 7.43, life_index: 7.50, living_condition: 7.63, prof_wellbeing: 7.78 }, overallScore:0 },
+      { id: 'Age_3', name: '39–48', shortName: '39–48', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 10.00,
+        clothing_afford: 9.97, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.33, financial_situation: 7.16, housing_quality: 7.51,
+        leisure_time: 7.50, life_index: 7.52, living_condition: 7.59, prof_wellbeing: 7.89 }, overallScore:0 },
+      { id: 'Age_4', name: '49–57', shortName: '49–57', dims: {
+        food_insecurity: null, missed_payments: 8.57, internet_access: 8.75, unmet_healthcare: 7.50,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.32, financial_situation: 7.16, housing_quality: 7.54,
+        leisure_time: 7.40, life_index: 7.58, living_condition: 7.64, prof_wellbeing: 7.76 }, overallScore:0 },
+      { id: 'Age_5', name: '58+', shortName: '58+', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 10.00,
+        clothing_afford: 10.07, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.36, financial_situation: 7.15, housing_quality: 7.67,
+        leisure_time: 7.45, life_index: 7.57, living_condition: 7.63, prof_wellbeing: 7.87 }, overallScore:0 }
+    ],
+    '2024': [
+      { id: 'Age_0', name: '15–17', shortName: '15–17', dims: {
+        food_insecurity: null, missed_payments: 8.33, internet_access: 10.00, unmet_healthcare: 8.33,
+        clothing_afford: 10.07, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.45, financial_situation: 7.17, housing_quality: 7.64,
+        leisure_time: 7.42, life_index: 7.62, living_condition: 7.67, prof_wellbeing: 8.02 }, overallScore:0 },
+      { id: 'Age_1', name: '18–28', shortName: '18–28', dims: {
+        food_insecurity: null, missed_payments: 8.33, internet_access: 10.00, unmet_healthcare: 9.72,
+        clothing_afford: 10.02, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.41, financial_situation: 7.19, housing_quality: 7.63,
+        leisure_time: 7.41, life_index: 7.67, living_condition: 7.67, prof_wellbeing: 7.96 }, overallScore:0 },
+      { id: 'Age_2', name: '29–38', shortName: '29–38', dims: {
+        food_insecurity: null, missed_payments: 7.94, internet_access: 10.00, unmet_healthcare: 9.52,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.37, financial_situation: 7.20, housing_quality: 7.68,
+        leisure_time: 7.44, life_index: 7.60, living_condition: 7.66, prof_wellbeing: 7.94 }, overallScore:0 },
+      { id: 'Age_3', name: '39–48', shortName: '39–48', dims: {
+        food_insecurity: null, missed_payments: 7.41, internet_access: 10.00, unmet_healthcare: 8.64,
+        clothing_afford: 10.03, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.45, financial_situation: 7.23, housing_quality: 7.66,
+        leisure_time: 7.38, life_index: 7.62, living_condition: 7.66, prof_wellbeing: 7.93 }, overallScore:0 },
+      { id: 'Age_4', name: '49–57', shortName: '49–57', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 9.52,
+        clothing_afford: 9.92, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.42, financial_situation: 7.23, housing_quality: 7.61,
+        leisure_time: 7.44, life_index: 7.60, living_condition: 7.74, prof_wellbeing: 7.90 }, overallScore:0 },
+      { id: 'Age_5', name: '58+', shortName: '58+', dims: {
+        food_insecurity: null, missed_payments: 7.78, internet_access: 10.00, unmet_healthcare: 8.89,
+        clothing_afford: 10.00, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.45, financial_situation: 7.24, housing_quality: 7.55,
+        leisure_time: 7.44, life_index: 7.68, living_condition: 7.66, prof_wellbeing: 7.87 }, overallScore:0 }
+    ]
+  };
 
   // Real gender data by year
   DATASETS.Gender = {
@@ -897,18 +1505,69 @@ function generateTestData() {
     ]
   };
 
-  DATASETS.SettlementType = ['Город', 'Село'].map((name, i) => {
-    const dims = {};
-    DIMENSIONS.forEach(dim => { dims[dim.key] = randomScore(); });
-    return {
-      id: 'SettlementType_' + i,
-      name,
-      shortName: name,
-      dims,
-      satisfaction: +(Math.random() * 3 + 5).toFixed(2),
-      overallScore: 0
-    };
-  });
+  // Real settlement-type data by year (Город / Село)
+  DATASETS.SettlementType = {
+    '2020': [
+      { id: 'Set_0', name: 'Город', shortName: 'Город', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 8.57, unmet_healthcare: null,
+        clothing_afford: 10.02, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 5.47, health_index: 7.24, financial_situation: 7.04, housing_quality: 7.46,
+        leisure_time: 7.51, life_index: 7.83, living_condition: 7.64, prof_wellbeing: 7.87 }, overallScore:0 },
+      { id: 'Set_1', name: 'Село', shortName: 'Село', dims: {
+        food_insecurity: 10.00, missed_payments: 8.89, internet_access: 7.14, unmet_healthcare: null,
+        clothing_afford: 9.98, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 4.53, health_index: 7.22, financial_situation: 7.08, housing_quality: 7.46,
+        leisure_time: 7.46, life_index: 7.84, living_condition: 7.64, prof_wellbeing: 7.90 }, overallScore:0 }
+    ],
+    '2021': [
+      { id: 'Set_0', name: 'Город', shortName: 'Город', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 10.01, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 5.44, health_index: 7.26, financial_situation: 7.07, housing_quality: 7.34,
+        leisure_time: 7.40, life_index: 7.78, living_condition: 7.59, prof_wellbeing: 7.73 }, overallScore:0 },
+      { id: 'Set_1', name: 'Село', shortName: 'Село', dims: {
+        food_insecurity: 8.89, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.98, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 4.56, health_index: 7.28, financial_situation: 7.21, housing_quality: 7.58,
+        leisure_time: 7.43, life_index: 7.88, living_condition: 7.63, prof_wellbeing: 7.85 }, overallScore:0 }
+    ],
+    '2022': [
+      { id: 'Set_0', name: 'Город', shortName: 'Город', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 10.01, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 5.48, health_index: 7.32, financial_situation: 6.99, housing_quality: 7.59,
+        leisure_time: 7.45, life_index: 7.48, living_condition: 7.57, prof_wellbeing: 7.81 }, overallScore:0 },
+      { id: 'Set_1', name: 'Село', shortName: 'Село', dims: {
+        food_insecurity: 10.00, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: null,
+        clothing_afford: 9.98, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: 4.52, health_index: 7.28, financial_situation: 7.12, housing_quality: 7.60,
+        leisure_time: 7.43, life_index: 7.51, living_condition: 7.59, prof_wellbeing: 7.85 }, overallScore:0 }
+    ],
+    '2023': [
+      { id: 'Set_0', name: 'Город', shortName: 'Город', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 8.75,
+        clothing_afford: 9.97, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.33, financial_situation: 7.15, housing_quality: 7.62,
+        leisure_time: 7.45, life_index: 7.55, living_condition: 7.64, prof_wellbeing: 7.79 }, overallScore:0 },
+      { id: 'Set_1', name: 'Село', shortName: 'Село', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 10.00,
+        clothing_afford: 10.03, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.31, financial_situation: 7.12, housing_quality: 7.55,
+        leisure_time: 7.44, life_index: 7.53, living_condition: 7.63, prof_wellbeing: 7.80 }, overallScore:0 }
+    ],
+    '2024': [
+      { id: 'Set_0', name: 'Город', shortName: 'Город', dims: {
+        food_insecurity: null, missed_payments: 8.64, internet_access: 10.00, unmet_healthcare: 10.00,
+        clothing_afford: 9.98, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.43, financial_situation: 7.22, housing_quality: 7.59,
+        leisure_time: 7.42, life_index: 7.63, living_condition: 7.66, prof_wellbeing: 7.87 }, overallScore:0 },
+      { id: 'Set_1', name: 'Село', shortName: 'Село', dims: {
+        food_insecurity: null, missed_payments: 10.00, internet_access: 10.00, unmet_healthcare: 8.89,
+        clothing_afford: 10.03, internet_use: 10.00, social_afford: 10.00, holiday_afford: 10.00,
+        welfare_trend: null, health_index: 7.42, financial_situation: 7.21, housing_quality: 7.66,
+        leisure_time: 7.43, life_index: 7.64, living_condition: 7.64, prof_wellbeing: 7.91 }, overallScore:0 }
+    ]
+  };
 
   DATASETS.Year = ['2020', '2021', '2022', '2023', '2024'].map((name, i) => {
     const dims = {};
@@ -935,6 +1594,36 @@ function updateViewTitle() {
   let title = map[currentGrouping] || 'Сравнение';
   if (selectedYear) title += ' — ' + selectedYear;
   document.getElementById('viewTitle').textContent = title;
+}
+
+// Helper: get data for a grouping and year, with simple fallback to nearest available year
+function getYearData(group, year) {
+  if (!group || !year) return [];
+  const set = DATASETS[group];
+  if (!set) return [];
+
+  // For year-keyed datasets (Region, Gender, AgeGroup, SettlementType)
+  if (typeof set === 'object' && !Array.isArray(set)) {
+    // Try direct year access first
+    if (set[year] && Array.isArray(set[year])) {
+      return set[year];
+    }
+    // If not found, try to find nearest previous year
+    const years = Object.keys(set).sort((a, b) => Number(b) - Number(a)); // Sort descending
+    const targetYear = Number(year);
+    const nearestYear = years.find(y => Number(y) <= targetYear);
+    if (nearestYear) {
+      return set[nearestYear];
+    }
+    return [];
+  }
+  
+  // For simple arrays (legacy support)
+  if (Array.isArray(set)) {
+    return set;
+  }
+  
+  return [];
 }
 
 function overallScore(item) {
@@ -993,10 +1682,11 @@ function sortData(arr) {
 }
 
 function getXScale(data) {
+  const pad = (currentGrouping === 'Region') ? 1.2 : 0.5;
   return d3.scalePoint()
     .domain(data.map(d => d.name))
     .range([PAD_LEFT, WIDTH - PAD_RIGHT])
-    .padding(0.5);
+    .padding(pad);
 }
 
 function showDetailCard(item, clientX, clientY) {
@@ -1071,16 +1761,23 @@ function updateAll() {
   CURRENT_DATA.forEach(d => { d.overallScore = overallScore(d); });
   sortData(CURRENT_DATA);
 
-  const scores = CURRENT_DATA.map(d => d.overallScore || 0);
+  // Apply Top-N filter if requested
+  let displayData = CURRENT_DATA.slice();
+  const topSel = document.getElementById('topSelect') ? document.getElementById('topSelect').value : 'all';
+  if (topSel && topSel !== 'all') {
+    const n = parseInt(topSel, 10) || displayData.length;
+    displayData = CURRENT_DATA.slice().sort((a,b) => d3.descending(a.overallScore, b.overallScore)).slice(0, n);
+  }
+
+  const scores = displayData.map(d => d.overallScore || 0);
   const minS = d3.min(scores) || 0;
   const maxS = d3.max(scores) || 10;
   const yMin = Math.max(0, minS - 0.5);
   const yMax = Math.min(10, maxS + 0.5);
   const yLocal = d3.scaleLinear().domain([yMin, yMax]).range([HEIGHT - PAD_BOTTOM, PAD_TOP]);
+  const xScale = getXScale(displayData);
 
-  const xScale = getXScale(CURRENT_DATA);
-
-  const stems = svg.selectAll(".stem-group").data(CURRENT_DATA, d => d.id);
+  const stems = svg.selectAll(".stem-group").data(displayData, d => d.id);
 
   const stemsEnter = stems.enter().append("g").attr("class", "stem-group");
   stemsEnter.append("line").attr("class", "axis-line stem-line");
@@ -1230,8 +1927,9 @@ function initControls() {
 
   document.getElementById("groupSelect").addEventListener("change", (e) => {
     currentGrouping = e.target.value;
-    if (currentGrouping === 'Gender' && selectedYear) {
-      CURRENT_DATA = DATASETS.Gender[selectedYear] || [];
+    if ((currentGrouping === 'Gender' || currentGrouping === 'Region' || 
+         currentGrouping === 'SettlementType' || currentGrouping === 'AgeGroup') && selectedYear) {
+      CURRENT_DATA = getYearData(currentGrouping, selectedYear) || [];
     } else {
       CURRENT_DATA = DATASETS[currentGrouping] || [];
     }
@@ -1251,15 +1949,24 @@ function initControls() {
         opt.textContent = y.name;
         yearSelectEl.appendChild(opt);
       });
-      // default to last year available
+      // default to the most recent year that has region or gender data; fall back to last year
       selectedYear = DATASETS.Year[DATASETS.Year.length - 1].name;
+      for (let i = DATASETS.Year.length - 1; i >= 0; i--) {
+        const y = DATASETS.Year[i].name;
+        if ((DATASETS.Region && DATASETS.Region[y] && DATASETS.Region[y].length > 0) ||
+            (DATASETS.Gender && DATASETS.Gender[y] && DATASETS.Gender[y].length > 0)) {
+          selectedYear = y;
+          break;
+        }
+      }
       yearSelectEl.value = selectedYear;
     }
 
-    yearSelectEl.addEventListener('change', (e) => {
+      yearSelectEl.addEventListener('change', (e) => {
       selectedYear = e.target.value;
-      if (currentGrouping === 'Gender') {
-        CURRENT_DATA = DATASETS.Gender[selectedYear] || [];
+      if (currentGrouping === 'Gender' || currentGrouping === 'Region' || 
+          currentGrouping === 'SettlementType' || currentGrouping === 'AgeGroup') {
+        CURRENT_DATA = getYearData(currentGrouping, selectedYear) || [];
       }
       updateViewTitle();
       updateAll();
@@ -1267,13 +1974,23 @@ function initControls() {
   }
 
   document.getElementById("sortSelect").addEventListener("change", updateAll);
+  const topEl = document.getElementById('topSelect');
+  if (topEl) topEl.addEventListener('change', updateAll);
 }
 
 function boot() {
-  generateTestData();
+  // Initialize year-based datasets if they don't exist
+  if (!DATASETS.Region || !DATASETS.Gender || !DATASETS.AgeGroup || !DATASETS.SettlementType) {
+    generateTestData();
+  }
   initControls();
   currentGrouping = 'Region';
-  CURRENT_DATA = DATASETS[currentGrouping] || [];
+  if ((currentGrouping === 'Gender' || currentGrouping === 'Region' || 
+       currentGrouping === 'SettlementType' || currentGrouping === 'AgeGroup') && selectedYear) {
+    CURRENT_DATA = getYearData(currentGrouping, selectedYear) || [];
+  } else {
+    CURRENT_DATA = DATASETS[currentGrouping] || [];
+  }
   updateViewTitle();
   updateAll();
 }

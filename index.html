@@ -28,26 +28,41 @@
     color: var(--text-main);
     line-height: 1.4;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .content-wrapper {
+    display: flex;
     flex-direction: row;
     align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1700px;
     padding: 16px;
     box-sizing: border-box;
+    gap: 16px;
   }
 
   .sidebar {
-    width: 260px;
+    width: 280px;
     min-width: 260px;
-    max-width: 260px;
+    max-width: 320px;
     background: var(--panel-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
-    height: var(--viz-height);
     box-sizing: border-box;
     padding: 16px 16px 12px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    height: var(--viz-height);
+    position: sticky;
+    top: 16px;
+    flex-shrink: 0;
   }
 
   .sidebar-title {
@@ -138,19 +153,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: var(--viz-height);
-    min-height: var(--viz-height);
-    max-height: var(--viz-height);
     box-sizing: border-box;
-    padding-left: 16px;
-    overflow: hidden;
     position: relative;
+    max-width: var(--viz-width);
+    width: 100%;
   }
 
   #viewTitle {
     margin: 6px 0 12px 0;
     font-size: 16px;
     color: var(--text-main);
+    text-align: center;
+    width: 100%;
   }
 
   svg {
@@ -158,6 +172,7 @@
     font-family: var(--font);
     width: var(--viz-width);
     height: var(--viz-height);
+    display: block;
   }
 
   .axis-line {
@@ -166,16 +181,17 @@
   }
 
   .stem-label {
-    fill: var(--text-dim);
-    font-size: 11px;
+    fill: var(--text-main);
+    font-size: 22px;
+    font-weight: 600;
     text-anchor: middle;
     dominant-baseline: middle;
     pointer-events: none;
   }
 
   .score-text {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     fill: #374151;
     text-anchor: middle;
     alignment-baseline: middle;
@@ -205,8 +221,9 @@
   }
 
   .detail-card {
-    position: absolute;
+    position: fixed;
     min-width: 340px;
+    max-width: 400px;
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -217,6 +234,7 @@
     line-height: 1.4;
     z-index: 9999;
     display: none;
+    pointer-events: none;
   }
 
   .detail-header {
@@ -296,17 +314,17 @@
 </style>
 </head>
 <body>
+<div class="content-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-title">Создайте свой Индекс Качества Жизни</div>
+    <div class="sidebar-sub">
+      Лепестки = показатели качества жизни (жильё, доход, здоровье...).
+      Высота цветка = итоговый индекс, учитывающий ваши веса.
+    </div>
 
-<aside class="sidebar">
-  <div class="sidebar-title">Создайте свой Индекс Качества Жизни</div>
-  <div class="sidebar-sub">
-    Лепестки = показатели качества жизни (жильё, доход, здоровье...).
-    Высота цветка = итоговый индекс, учитывающий ваши веса.
-  </div>
+    <div id="sliders"></div>
 
-  <div id="sliders"></div>
-
-  <div class="group-block">
+    <div class="group-block">
     <div class="block-label">Сравнивать по (ось X):</div>
     <div class="select-wrapper">
       <select id="groupSelect">
@@ -331,14 +349,15 @@
         <option value="score_asc">Индекс (низкий → высокий)</option>
       </select>
     </div>
-  </div>
-</aside>
+    </div>
+  </aside>
 
-<section class="main-area">
-  <h2 id="viewTitle"></h2>
-  <svg id="viz"></svg>
-  <div class="detail-card" id="detailCard"></div>
-</section>
+  <section class="main-area">
+    <h2 id="viewTitle"></h2>
+    <svg id="viz"></svg>
+    <div class="detail-card" id="detailCard"></div>
+  </section>
+</div>
 
 <script>
 const DIMENSIONS = [
@@ -393,7 +412,7 @@ function generateTestData() {
     return {
       id: 'Region_' + i,
       name,
-      shortName: name.length > 12 ? name.slice(0, 10) + '…' : name,
+      shortName: name.length > 15 ? name.slice(0, 13) + '…' : name,
       dims,
       satisfaction: +(Math.random() * 3 + 5).toFixed(2),
       overallScore: 0
@@ -556,20 +575,33 @@ function showDetailCard(item, clientX, clientY) {
   
   card.innerHTML = html;
   
-  const rect = card.getBoundingClientRect();
-  let left = clientX + 15;
-  let top = clientY - rect.height / 2;
+  // Show the card first with visibility hidden to get correct measurements
+  card.style.visibility = 'hidden';
+  card.style.display = 'block';
   
-  if (left + rect.width > window.innerWidth - 20) {
+  const rect = card.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // Determine if we should show the card on the left or right of the cursor
+  let left = clientX + 15;
+  if (left + rect.width > viewportWidth - 20) {
     left = clientX - rect.width - 15;
   }
-  if (top < 20) top = 20;
-  if (top + rect.height > window.innerHeight - 20) {
-    top = window.innerHeight - rect.height - 20;
+  
+  // Calculate vertical position
+  let top = clientY - (rect.height / 2);
+  // Ensure the card stays within the viewport vertically
+  if (top < 20) {
+    top = 20;
+  } else if (top + rect.height > viewportHeight - 20) {
+    top = viewportHeight - rect.height - 20;
   }
   
+  // Apply the position and make visible
   card.style.left = left + 'px';
   card.style.top = top + 'px';
+  card.style.visibility = 'visible';
 }
 
 function hideDetailCard() {
@@ -642,7 +674,7 @@ function updateAll() {
       .merge(scoreText)
       .text(d => d.overallScore.toFixed(2));
 
-    const HIT_RADIUS = 36;
+    const HIT_RADIUS = 50; // Increased hit area for better interaction
     const hitArea = gFlower.selectAll(".hit-area").data([item]);
     hitArea.enter()
       .append("circle")
@@ -650,11 +682,25 @@ function updateAll() {
       .attr("r", HIT_RADIUS)
       .merge(hitArea)
       .on("mousemove", (event) => {
+        // Prevent any text selection during hover
+        event.preventDefault();
+        
+        // Update visual states
         svg.selectAll(".flower-group").classed("highlight", false).style("opacity", 0.15);
         gFlower.classed("highlight", true).style("opacity", 1);
-        showDetailCard(item, event.clientX, event.clientY);
+        
+        // Get correct mouse coordinates
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        
+        // Show detail card with slight delay to prevent flickering
+        clearTimeout(window._detailCardTimeout);
+        window._detailCardTimeout = setTimeout(() => {
+          showDetailCard(item, mouseX, mouseY);
+        }, 50);
       })
       .on("mouseleave", () => {
+        clearTimeout(window._detailCardTimeout);
         svg.selectAll(".flower-group").classed("highlight", false).style("opacity", 1);
         hideDetailCard();
       });

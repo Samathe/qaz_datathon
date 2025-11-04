@@ -19,6 +19,165 @@
             "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     --viz-height: 700px;
     --viz-width: 1400px;
+    --header-height: 240px;
+    --color-dark: #17173f;
+    --color-navy: #212153;
+    --color-peach: #f3b77b;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+  .header {
+    position: relative;
+    width: 100%;
+    height: var(--header-height);
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-dark) 100%);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, transparent 30%, var(--color-navy) 70%);
+    opacity: 0.4;
+    animation: rotate 60s linear infinite;
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 40px;
+    color: white;
+    text-align: center;
+  }
+
+    .header-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, white, var(--color-peach));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      line-height: 1.3;
+      max-width: 1200px;
+    }
+
+    .header-title-main {
+      display: block;
+      font-size: 38px;
+      margin-bottom: 12px;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-weight: 700;
+    }
+
+    .header-title-sub {
+      display: block;
+      font-size: 24px;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-weight: 500;
+      color: white; /* ensure visible over gradient */
+      text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      margin-top: 6px;
+      opacity: 0.98;
+    }
+
+    .header-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.9);
+      max-width: 800px;
+      line-height: 1.6;
+    }
+
+  .geometric-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .shape {
+    position: absolute;
+    background: var(--color-peach);
+    opacity: 0.1;
+    border-radius: 50%;
+  }
+
+  .shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    left: 10%;
+    animation: float 8s infinite ease-in-out;
+  }
+
+  .shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    right: 15%;
+    animation: float 12s infinite ease-in-out reverse;
+    background: white;
+  }
+
+  .shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 20%;
+    right: 25%;
+    animation: float 10s infinite ease-in-out;
+    background: var(--color-peach);
+    opacity: 0.2;
+  }
+
+    .header-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, white, var(--color-peach));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      line-height: 1.1;
+      display: inline-block; /* prevent full-width clipping to allow centered subtitle below */
+    }
+
+    /* Ensure subtitle isn't clipped by the gradient text of the parent */
+    .header-title .header-title-sub {
+      background: none !important;
+      -webkit-background-clip: initial !important;
+      background-clip: initial !important;
+      -webkit-text-fill-color: initial !important;
+      color: white !important;
+    }
+
+  .header-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.9);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   body {
@@ -314,6 +473,20 @@
 </style>
 </head>
 <body>
+<header class="header">
+  <div class="geometric-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+  <div class="header-content">
+    <h1 class="header-title">
+      <span class="header-title-main">Многомерная методологическая модель оценки благополучия в Казахстане</span>
+      <span class="header-title-sub">региональный, территориальный, гендерный и возрастной композиционный индекс качества жизни</span>
+    </h1>
+
+  </div>
+</header>
 <div class="content-wrapper">
   <aside class="sidebar">
     <div class="sidebar-title">Создайте свой Индекс Качества Жизни</div>

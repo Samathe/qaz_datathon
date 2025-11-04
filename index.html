@@ -270,17 +270,19 @@
     width: 100%;
   }
 
-  .group-block, .sort-block {
+  .control-block {
     font-size: 12px;
     color: var(--text-main);
     line-height: 1.4;
-    margin-top: 16px;
-    border-top: 1px solid var(--border);
-    padding-top: 12px;
+    padding: 8px 0;
+  }
+
+  .control-block:not(:last-child) {
+    border-bottom: 1px solid var(--border);
   }
 
   .block-label {
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     font-weight: 500;
     font-size: 12px;
     color: var(--text-main);
@@ -289,12 +291,29 @@
   .select-wrapper {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 6px 8px;
+    padding: 8px 10px;
     font-size: 12px;
     background: #f9fafb;
     display: flex;
     flex-direction: row;
     align-items: center;
+  }
+
+  .controls-panel {
+    width: 280px;
+    min-width: 260px;
+    max-width: 320px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    box-sizing: border-box;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 16px;
+    height: fit-content;
   }
 
   select {
@@ -510,54 +529,7 @@
       Лепестки = показатели качества жизни (жильё, доход, здоровье...).
       Высота цветка = итоговый индекс, учитывающий ваши веса.
     </div>
-
     <div id="sliders"></div>
-
-    <div class="group-block">
-    <div class="block-label">Сравнивать по (ось X):</div>
-    <div class="select-wrapper">
-      <select id="groupSelect">
-        <option value="Region">Регион (область / город)</option>
-        <option value="AgeGroup">Возрастная группа</option>
-        <option value="Gender">Гендер</option>
-        <option value="SettlementType">Тип поселения</option>
-      </select>
-    </div>
-    <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">
-      Это то, как мы делим население: регионы, возраст, пол, город/село или год.
-    </div>
-  </div>
-
-  <div class="sort-block">
-    <div class="block-label">Сортировать по:</div>
-    <div class="select-wrapper">
-      <select id="sortSelect">
-        <option value="name">Название (А–Я)</option>
-        <option value="score_desc">Индекс (высокий → низкий)</option>
-        <option value="score_asc">Индекс (низкий → высокий)</option>
-      </select>
-    </div>
-      <div class="group-block">
-        <div class="block-label">Выберите год:</div>
-        <div class="select-wrapper">
-          <select id="yearSelect"></select>
-        </div>
-      </div>
-          <div class="group-block">
-            <div class="block-label">Показать:</div>
-            <div class="select-wrapper">
-              <select id="topSelect">
-                <option value="all">Все</option>
-                <option value="1">Top 1</option>
-                <option value="2">Top 2</option>
-                <option value="3">Top 3</option>
-                <option value="4">Top 4</option>
-                <option value="5">Top 5</option>
-                <option value="10">Top 10</option>
-              </select>
-            </div>
-          </div>
-    </div>
   </aside>
 
   <section class="main-area">
@@ -565,6 +537,55 @@
     <svg id="viz"></svg>
     <div class="detail-card" id="detailCard"></div>
   </section>
+
+  <aside class="controls-panel">
+    <div class="controls-title">Настройки отображения</div>
+    
+    <div class="control-block">
+      <div class="block-label">Сравнивать по (ось X):</div>
+      <div class="select-wrapper">
+        <select id="groupSelect">
+          <option value="Region">Регион (область / город)</option>
+          <option value="AgeGroup">Возрастная группа</option>
+          <option value="Gender">Гендер</option>
+          <option value="SettlementType">Тип поселения</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-block">
+      <div class="block-label">Выберите год:</div>
+      <div class="select-wrapper">
+        <select id="yearSelect"></select>
+      </div>
+    </div>
+
+    <div class="control-block">
+      <div class="block-label">Сортировать по:</div>
+      <div class="select-wrapper">
+        <select id="sortSelect">
+          <option value="name">Название (А–Я)</option>
+          <option value="score_desc">Индекс (высокий → низкий)</option>
+          <option value="score_asc">Индекс (низкий → высокий)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-block">
+      <div class="block-label">Показать:</div>
+      <div class="select-wrapper">
+        <select id="topSelect">
+          <option value="all">Все</option>
+          <option value="1">Top 1</option>
+          <option value="2">Top 2</option>
+          <option value="3">Top 3</option>
+          <option value="4">Top 4</option>
+          <option value="5">Top 5</option>
+          <option value="10">Top 10</option>
+        </select>
+      </div>
+    </div>
+  </aside>
 </div>
 
 <script>
@@ -1671,14 +1692,17 @@ function petalPolygon(dimIndex, r, centerR) {
 
 function sortData(arr) {
   const mode = document.getElementById("sortSelect").value;
+  // Create a copy to avoid modifying the input array
+  const sorted = arr.slice();
+  
   if (mode === "name") {
-    arr.sort((a, b) => d3.ascending(a.name, b.name));
+    sorted.sort((a, b) => d3.ascending(a.name, b.name));
   } else if (mode === "score_desc") {
-    arr.sort((a, b) => d3.descending(a.overallScore, b.overallScore));
+    sorted.sort((a, b) => d3.descending(a.overallScore, b.overallScore));
   } else if (mode === "score_asc") {
-    arr.sort((a, b) => d3.ascending(a.overallScore, b.overallScore));
+    sorted.sort((a, b) => d3.ascending(a.overallScore, b.overallScore));
   }
-  return arr;
+  return sorted;
 }
 
 function getXScale(data) {
@@ -1758,16 +1782,25 @@ function hideDetailCard() {
 }
 
 function updateAll() {
+  // Calculate overall scores
   CURRENT_DATA.forEach(d => { d.overallScore = overallScore(d); });
-  sortData(CURRENT_DATA);
-
-  // Apply Top-N filter if requested
+  
+  // Create a copy for manipulation
   let displayData = CURRENT_DATA.slice();
+  
+  // Apply Top-N filter first (always by overall score)
   const topSel = document.getElementById('topSelect') ? document.getElementById('topSelect').value : 'all';
   if (topSel && topSel !== 'all') {
     const n = parseInt(topSel, 10) || displayData.length;
-    displayData = CURRENT_DATA.slice().sort((a,b) => d3.descending(a.overallScore, b.overallScore)).slice(0, n);
+    // Sort by score, take top N
+    displayData = displayData.sort((a,b) => d3.descending(a.overallScore, b.overallScore)).slice(0, n);
   }
+  
+  // Then apply the user's chosen sort order
+  sortData(displayData);
+
+  // Update display data with sorted version
+  displayData = sortData(displayData);
 
   const scores = displayData.map(d => d.overallScore || 0);
   const minS = d3.min(scores) || 0;
